@@ -1,0 +1,59 @@
+/**
+ * Admin styles for the Wholesale & Offers pages.
+ *
+ * @package WC_Wholesale_Offers
+ */
+
+.wwo-admin-wrap .wwo-cards {
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 200px, 1fr ) );
+	gap: 18px;
+	margin-top: 22px;
+	max-width: 900px;
+}
+
+.wwo-card-stat {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 22px;
+	background: #fff;
+	border: 1px solid #e2e4e7;
+	border-left: 4px solid var(--wwo-primary, #332A28);
+	border-radius: 10px;
+	text-decoration: none;
+	color: #1d2327;
+	transition: box-shadow 0.2s ease, transform 0.05s ease;
+}
+
+.wwo-card-stat:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+.wwo-card-stat__num { font-size: 30px; font-weight: 700; color: var(--wwo-primary, #332A28); }
+.wwo-card-stat__label { font-size: 13px; color: #50575e; text-transform: uppercase; letter-spacing: 0.4px; }
+
+/* Badges (shared look with front end) */
+.wwo-badge {
+	display: inline-block;
+	padding: 2px 10px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+}
+.wwo-badge--pending   { background: #fff3cd; color: #7a5c00; }
+.wwo-badge--countered { background: #d9ecff; color: #0b4a8a; }
+.wwo-badge--accepted,
+.wwo-badge--approved  { background: #e8f5e9; color: #1b5e20; }
+.wwo-badge--rejected  { background: #fdecea; color: #8a1c1c; }
+.wwo-badge--expired   { background: #eceff1; color: #546e7a; }
+
+/* Row actions */
+.wwo-row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.wwo-act--danger { color: #b32d2e !important; border-color: #b32d2e !important; }
+
+/* Settings help card */
+.wwo-settings-help { max-width: 600px; margin-top: 26px; padding: 18px 22px; }
+.wwo-settings-help code { display: inline-block; margin: 6px 0; padding: 4px 8px; background: #f0f0f1; border-radius: 4px; }
+
+/* Color preview swatch sits next to the wp-color-picker automatically. */
+.wwo-color-field { max-width: 120px; }

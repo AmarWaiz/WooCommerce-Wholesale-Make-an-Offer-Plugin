@@ -1,0 +1,137 @@
+/**
+ * Storefront styles: Make an Offer box, account offers, badges.
+ * Colors come from CSS variables (set globally in <head>).
+ *
+ * @package WC_Wholesale_Offers
+ */
+
+/*
+ * The --wwo-* color variables are provided on :root by the plugin settings
+ * (printed in <head>) so the admin color customizer applies live. var()
+ * fallbacks below cover the rare case where that block is missing.
+ */
+
+/* ----- Make an Offer box ----- */
+.wwo-offer-box {
+	margin: 18px 0 6px;
+	padding: 18px;
+	border: 1.5px dashed rgba(51, 42, 40, 0.25);
+	border-radius: 12px;
+	background: rgba(240, 209, 173, 0.12);
+	font-size: 15px;
+	color: var(--wwo-primary);
+}
+
+.wwo-offer-box .wwo-btn {
+	display: inline-block;
+	border: 0;
+	border-radius: 9px;
+	padding: 11px 20px;
+	font-weight: 600;
+	cursor: pointer;
+	text-decoration: none;
+	transition: opacity 0.2s ease;
+}
+
+.wwo-btn--primary { background: var(--wwo-primary, #332A28); color: var(--wwo-light, #FFFFFF); }
+.wwo-btn--secondary { background: var(--wwo-secondary, #F0D1AD); color: var(--wwo-primary, #332A28); }
+.wwo-btn--ghost { background: transparent; color: var(--wwo-primary, #332A28); border: 1.5px solid var(--wwo-primary, #332A28); }
+.wwo-btn--text { background: transparent; color: var(--wwo-primary, #332A28); }
+.wwo-btn--sm { padding: 6px 13px; font-size: 13px; }
+.wwo-btn:hover { opacity: 0.92; }
+
+.wwo-offer-form { margin-top: 14px; }
+.wwo-offer-form__intro { font-size: 14px; margin: 0 0 12px; }
+
+.wwo-offer-input {
+	display: inline-flex;
+	align-items: center;
+	border: 1.5px solid rgba(51, 42, 40, 0.2);
+	border-radius: 9px;
+	overflow: hidden;
+	background: var(--wwo-light);
+	margin-bottom: 12px;
+}
+
+.wwo-offer-input__symbol {
+	padding: 0 12px;
+	color: rgba(51, 42, 40, 0.6);
+	font-weight: 600;
+}
+
+.wwo-offer-input input {
+	border: 0;
+	padding: 11px 12px;
+	font-size: 15px;
+	width: 130px;
+	outline: none;
+	background: transparent;
+	color: var(--wwo-primary);
+}
+
+.wwo-offer-form__buttons { display: flex; gap: 10px; align-items: center; }
+
+.wwo-offer-message { margin-top: 10px; font-size: 14px; min-height: 1em; }
+.wwo-offer-message--error { color: #8a1c1c; }
+.wwo-offer-message--success { color: #1b5e20; }
+
+.wwo-offer-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.wwo-offer-status p { margin: 8px 0; }
+.wwo-offer-expiry { font-size: 13px; color: rgba(51, 42, 40, 0.7); }
+
+/* ----- Status badges ----- */
+.wwo-badge {
+	display: inline-block;
+	padding: 3px 11px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 1.6;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+}
+
+.wwo-badge--pending   { background: #fff3cd; color: #7a5c00; }
+.wwo-badge--countered { background: #d9ecff; color: #0b4a8a; }
+.wwo-badge--accepted,
+.wwo-badge--approved  { background: #e8f5e9; color: #1b5e20; }
+.wwo-badge--rejected  { background: #fdecea; color: #8a1c1c; }
+.wwo-badge--expired   { background: #eceff1; color: #546e7a; }
+
+/* ----- Account offers table ----- */
+.wwo-offers-table { width: 100%; border-collapse: collapse; }
+.wwo-offers-table th,
+.wwo-offers-table td { padding: 12px 10px; text-align: left; border-bottom: 1px solid rgba(51, 42, 40, 0.1); vertical-align: middle; }
+.wwo-offers-table th { font-size: 13px; text-transform: uppercase; letter-spacing: 0.4px; color: rgba(51, 42, 40, 0.7); }
+.wwo-account-actions .wwo-offer-actions { margin-top: 0; }
+
+/* Account menu badge */
+.wwo-badge-count {
+	display: inline-block;
+	min-width: 18px;
+	height: 18px;
+	line-height: 18px;
+	text-align: center;
+	background: #c0392b;
+	color: #fff;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 700;
+	padding: 0 5px;
+}
+
+.wwo-alert {
+	padding: 12px 16px;
+	border-radius: 10px;
+	margin-bottom: 18px;
+	font-size: 14px;
+}
+.wwo-alert--info { background: rgba(240, 209, 173, 0.35); color: var(--wwo-primary); }
+
+@media ( max-width: 600px ) {
+	.wwo-offers-table thead { display: none; }
+	.wwo-offers-table, .wwo-offers-table tbody, .wwo-offers-table tr, .wwo-offers-table td { display: block; width: 100%; }
+	.wwo-offers-table tr { margin-bottom: 16px; border: 1px solid rgba(51, 42, 40, 0.12); border-radius: 10px; padding: 6px 12px; }
+	.wwo-offers-table td { border: 0; padding: 7px 0; }
+	.wwo-offers-table td::before { content: attr(data-title) ": "; font-weight: 700; }
+}

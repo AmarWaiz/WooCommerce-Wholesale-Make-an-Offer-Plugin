@@ -1,0 +1,272 @@
+/**
+ * Login / Registration page styles.
+ * All colors come from CSS variables emitted by the settings (no hard-coding).
+ *
+ * @package WC_Wholesale_Offers
+ */
+
+/*
+ * Note: the --wwo-* color variables are emitted on :root by the plugin settings
+ * (WWO_Settings::output_css_variables) so the admin color customizer applies
+ * live. Fallback values below keep things sane if that block is ever absent.
+ */
+.wwo-auth {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	color: var(--wwo-primary);
+	max-width: 1000px;
+	margin: 40px auto;
+	padding: 0 16px;
+	box-sizing: border-box;
+}
+
+.wwo-auth *,
+.wwo-auth *::before,
+.wwo-auth *::after {
+	box-sizing: border-box;
+}
+
+.wwo-auth__wrapper {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	background: var(--wwo-light);
+	border-radius: 18px;
+	overflow: hidden;
+	box-shadow: 0 24px 60px rgba(5, 9, 9, 0.18);
+}
+
+/* Brand / hero panel */
+.wwo-auth__brand {
+	background: linear-gradient(160deg, var(--wwo-primary), var(--wwo-accent));
+	color: var(--wwo-light);
+	padding: 56px 44px;
+	display: flex;
+	align-items: center;
+}
+
+.wwo-auth__logo {
+	font-size: 20px;
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	margin-bottom: 40px;
+	color: var(--wwo-secondary);
+}
+
+.wwo-auth__brand-title {
+	font-size: 30px;
+	line-height: 1.2;
+	margin: 0 0 16px;
+	color: var(--wwo-light);
+}
+
+.wwo-auth__brand-text {
+	font-size: 15px;
+	line-height: 1.7;
+	opacity: 0.85;
+	margin: 0;
+}
+
+/* Form panel */
+.wwo-auth__panel {
+	padding: 48px 44px;
+}
+
+.wwo-tabs {
+	display: inline-flex;
+	background: rgba(240, 209, 173, 0.25);
+	border-radius: 999px;
+	padding: 4px;
+	margin-bottom: 28px;
+}
+
+.wwo-tab {
+	border: 0;
+	background: transparent;
+	color: var(--wwo-primary);
+	padding: 9px 22px;
+	border-radius: 999px;
+	cursor: pointer;
+	font-weight: 600;
+	font-size: 14px;
+	transition: all 0.2s ease;
+}
+
+.wwo-tab.is-active {
+	background: var(--wwo-primary);
+	color: var(--wwo-light);
+}
+
+.wwo-form {
+	display: none;
+	animation: wwo-fade 0.25s ease;
+}
+
+.wwo-form.is-active {
+	display: block;
+}
+
+@keyframes wwo-fade {
+	from { opacity: 0; transform: translateY(6px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+.wwo-form__title {
+	font-size: 26px;
+	margin: 0 0 6px;
+	color: var(--wwo-primary);
+}
+
+.wwo-form__subtitle {
+	margin: 0 0 24px;
+	color: rgba(51, 42, 40, 0.65);
+	font-size: 14px;
+}
+
+.wwo-field {
+	display: block;
+	margin-bottom: 18px;
+}
+
+.wwo-field__label {
+	display: block;
+	font-size: 13px;
+	font-weight: 600;
+	margin-bottom: 7px;
+}
+
+.wwo-field input,
+.wwo-select {
+	width: 100%;
+	padding: 13px 15px;
+	border: 1.5px solid rgba(51, 42, 40, 0.15);
+	border-radius: 10px;
+	font-size: 15px;
+	background: var(--wwo-light);
+	color: var(--wwo-primary);
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wwo-field input:focus,
+.wwo-select:focus {
+	outline: none;
+	border-color: var(--wwo-primary);
+	box-shadow: 0 0 0 3px rgba(240, 209, 173, 0.5);
+}
+
+.wwo-field__hint {
+	display: block;
+	margin-top: 6px;
+	font-size: 12px;
+	color: rgba(51, 42, 40, 0.6);
+}
+
+.wwo-grid-2 {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 14px;
+}
+
+.wwo-field-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 22px;
+	font-size: 13px;
+}
+
+.wwo-checkbox {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+}
+
+.wwo-link {
+	color: var(--wwo-primary);
+	text-decoration: underline;
+	background: none;
+	border: 0;
+	padding: 0;
+	cursor: pointer;
+	font-size: inherit;
+	font-weight: 600;
+}
+
+.wwo-form__switch {
+	margin-top: 22px;
+	font-size: 13px;
+	text-align: center;
+	color: rgba(51, 42, 40, 0.7);
+}
+
+/* Buttons */
+.wwo-btn {
+	display: inline-block;
+	border: 0;
+	border-radius: 10px;
+	padding: 13px 24px;
+	font-size: 15px;
+	font-weight: 600;
+	cursor: pointer;
+	text-decoration: none;
+	text-align: center;
+	transition: transform 0.05s ease, opacity 0.2s ease, background 0.2s ease;
+}
+
+.wwo-btn:active { transform: translateY(1px); }
+
+.wwo-btn--primary {
+	background: var(--wwo-primary, #332A28);
+	color: var(--wwo-light, #FFFFFF);
+}
+
+.wwo-btn--primary:hover { opacity: 0.92; color: var(--wwo-light, #FFFFFF); }
+
+.wwo-btn--secondary {
+	background: var(--wwo-secondary, #F0D1AD);
+	color: var(--wwo-primary, #332A28);
+}
+
+.wwo-btn--ghost {
+	background: transparent;
+	color: var(--wwo-primary, #332A28);
+	border: 1.5px solid var(--wwo-primary, #332A28);
+}
+
+.wwo-btn--text {
+	background: transparent;
+	color: var(--wwo-primary);
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+.wwo-btn--block { width: 100%; }
+.wwo-btn--sm { padding: 7px 14px; font-size: 13px; }
+
+/* Alerts */
+.wwo-alert {
+	padding: 13px 16px;
+	border-radius: 10px;
+	margin-bottom: 20px;
+	font-size: 14px;
+}
+
+.wwo-alert--error   { background: #fdecea; color: #8a1c1c; }
+.wwo-alert--success { background: #e8f5e9; color: #1b5e20; }
+.wwo-alert--info    { background: rgba(240, 209, 173, 0.35); color: var(--wwo-primary); }
+
+/* Logged-in card */
+.wwo-auth--loggedin .wwo-card {
+	background: var(--wwo-light);
+	border-radius: 16px;
+	padding: 36px;
+	text-align: center;
+	box-shadow: 0 16px 40px rgba(5, 9, 9, 0.12);
+}
+
+/* Responsive */
+@media ( max-width: 782px ) {
+	.wwo-auth__wrapper { grid-template-columns: 1fr; }
+	.wwo-auth__brand { display: none; }
+	.wwo-auth__panel { padding: 32px 22px; }
+	.wwo-grid-2 { grid-template-columns: 1fr; }
+}

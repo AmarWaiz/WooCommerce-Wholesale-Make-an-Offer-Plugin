@@ -84,6 +84,15 @@ class WWO_Pricing {
 	 * @return string
 	 */
 	public function filter_price( $price, $product ) {
+		// A negotiated (agreed-offer) price set on this cart product instance
+		// must win over the wholesale list price. apply_agreed_prices() tags the
+		// instance with runtime meta; without this check, this very filter would
+		// clobber the set_price() value and the cart would show the list price.
+		$agreed = $product->get_meta( '_wwo_agreed_runtime', true );
+		if ( '' !== $agreed && (float) $agreed > 0 ) {
+			return (float) $agreed;
+		}
+
 		if ( ! WWO_Roles::is_approved_wholesale() ) {
 			return $price;
 		}
@@ -141,12 +150,23 @@ class WWO_Pricing {
 			$product_id   = (int) $cart_item['product_id'];
 			$variation_id = (int) ( $cart_item['variation_id'] ?? 0 );
 
-			// Re-validate against the DB on every recalculation.
+			// Re-validate against the DB on every recalculation. Try the exact
+			// variation first, then fall back to a product-level offer (made with
+			// variation_id 0) so it still applies to a chosen variation.
 			$offer = WWO_DB::get_redeemable_offer( $user_id, $product_id, $variation_id );
-			if ( $offer && (float) $offer->agreed_price > 0 ) {
-				$cart_item['data']->set_price( (float) $offer->agreed_price );
+			if ( ! $offer && $variation_id ) {
+				$offer = WWO_DB::get_redeemable_offer( $user_id, $product_id, 0 );
+			}
 
-				// Tag the runtime item so we can persist it to the order line.
+			if ( $offer && (float) $offer->agreed_price > 0 ) {
+				$agreed = (float) $offer->agreed_price;
+
+				$cart_item['data']->set_price( $agreed );
+
+				// Tag the runtime product instance so:
+				//  - filter_price() returns the agreed price (instead of wholesale), and
+				//  - add_offer_to_line_item() can persist it to the order line.
+				$cart_item['data']->update_meta_data( '_wwo_agreed_runtime', $agreed );
 				$cart_item['data']->update_meta_data( '_wwo_runtime_offer_id', (int) $offer->id );
 			}
 		}

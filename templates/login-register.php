@@ -32,17 +32,22 @@ $wwo_site = get_bloginfo( 'name' );
 		<?php // Decorative brand panel (CSS only — no image). ?>
 		<aside class="wwo-auth__aside">
 			<div class="wwo-auth__aside-inner">
-				<span class="wwo-auth__brand"><?php echo esc_html( $wwo_site ); ?></span>
-				<h2 class="wwo-auth__aside-title"><?php esc_html_e( 'Welcome to your account', 'wc-wholesale-offers' ); ?></h2>
-				<p class="wwo-auth__aside-text"><?php esc_html_e( 'Sign in, or create an account in seconds, to manage everything in one place.', 'wc-wholesale-offers' ); ?></p>
 
-				<ul class="wwo-auth__features">
-					<li><?php esc_html_e( 'Track your orders and downloads', 'wc-wholesale-offers' ); ?></li>
-					<li><?php esc_html_e( 'Unlock exclusive wholesale pricing', 'wc-wholesale-offers' ); ?></li>
-					<li><?php esc_html_e( 'Make an offer and negotiate your price', 'wc-wholesale-offers' ); ?></li>
-				</ul>
+				<span class="wwo-auth__brand"><?php echo esc_html( $wwo_site ); ?></span>
+
+				<div class="wwo-auth__aside-mid">
+					<h2 class="wwo-auth__aside-title"><?php esc_html_e( 'Welcome to your account', 'wc-wholesale-offers' ); ?></h2>
+					<p class="wwo-auth__aside-text"><?php esc_html_e( 'Sign in, or create an account in seconds, to manage everything in one place.', 'wc-wholesale-offers' ); ?></p>
+
+					<ul class="wwo-auth__features">
+						<li><?php esc_html_e( 'Track your orders and downloads', 'wc-wholesale-offers' ); ?></li>
+						<li><?php esc_html_e( 'Unlock exclusive wholesale pricing', 'wc-wholesale-offers' ); ?></li>
+						<li><?php esc_html_e( 'Make an offer and negotiate your price', 'wc-wholesale-offers' ); ?></li>
+					</ul>
+				</div>
 
 				<p class="wwo-auth__aside-foot"><?php esc_html_e( 'Secure sign-in · Your details stay private', 'wc-wholesale-offers' ); ?></p>
+
 			</div>
 		</aside>
 

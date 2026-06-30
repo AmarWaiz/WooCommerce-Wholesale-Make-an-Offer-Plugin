@@ -201,69 +201,213 @@
 /* Account-menu unread badge already styled above (.wwo-badge-count). */
 
 /* =====================================================================
- * Embedded My Account dashboard on a DARK login page — white text.
- * (Rendered when the [wwo_login_register] shortcode hands off to the
- * WooCommerce account dashboard for a logged-in user on a dark page.)
+ * Account dashboard (logged-in view of [wwo_login_register]) — professional
+ * dark layout: sidebar navigation + content card, white text, brand accents.
  * =================================================================== */
+.wwo-account-embed {
+	--wwo-line: rgba(255, 255, 255, 0.12);
+	--wwo-panel: rgba(255, 255, 255, 0.04);
+	color: #fff;
+	font-size: 15px;
+}
+
 .wwo-account-embed,
 .wwo-account-embed p,
 .wwo-account-embed li,
+.wwo-account-embed td,
+.wwo-account-embed th,
 .wwo-account-embed span,
 .wwo-account-embed strong,
+.wwo-account-embed label,
 .wwo-account-embed h1,
 .wwo-account-embed h2,
 .wwo-account-embed h3,
 .wwo-account-embed address,
 .wwo-account-embed .woocommerce-MyAccount-content,
 .wwo-account-embed .woocommerce-MyAccount-content * {
-	color: #ffffff !important;
+	color: #ffffff;
 }
 
-/* Links — keep them visible/branded on the dark background. */
-.wwo-account-embed a:not(.button) {
-	color: var(--wwo-secondary, #F0D1AD) !important;
-	text-decoration: none;
+/* Two-column layout with comfortable spacing. */
+.wwo-account-embed .woocommerce {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 30px;
+	align-items: flex-start;
 }
 
-.wwo-account-embed a:not(.button):hover {
-	text-decoration: underline;
+/* ---- Sidebar navigation ---- */
+.wwo-account-embed .woocommerce-MyAccount-navigation {
+	flex: 0 0 240px;
+	width: 240px;
+	float: none;
+	margin: 0;
 }
 
-/* Navigation menu on dark. */
 .wwo-account-embed .woocommerce-MyAccount-navigation ul {
-	border: 1px solid rgba(255, 255, 255, 0.18);
-	border-radius: 12px;
-	overflow: hidden;
+	margin: 0;
+	padding: 8px;
+	list-style: none;
+	background: var(--wwo-panel);
+	border: 1px solid var(--wwo-line);
+	border-radius: 14px;
 }
 
 .wwo-account-embed .woocommerce-MyAccount-navigation ul li {
-	border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+	border: 0;
+	margin: 2px 0;
 }
 
 .wwo-account-embed .woocommerce-MyAccount-navigation ul li a {
-	color: #ffffff !important;
+	display: block;
+	padding: 12px 16px;
+	border-radius: 9px;
+	font-weight: 600;
+	font-size: 14.5px;
+	color: rgba(255, 255, 255, 0.82) !important;
+	text-decoration: none;
+	transition: background 0.18s ease, color 0.18s ease;
 }
 
-.wwo-account-embed .woocommerce-MyAccount-navigation ul li.is-active a,
 .wwo-account-embed .woocommerce-MyAccount-navigation ul li a:hover {
-	background: rgba(255, 255, 255, 0.10);
-	color: #ffffff !important;
+	background: rgba(255, 255, 255, 0.07);
+	color: #fff !important;
 }
 
-/* Inputs in account forms stay readable (dark text on light field). */
+.wwo-account-embed .woocommerce-MyAccount-navigation ul li.is-active a {
+	background: var(--wwo-secondary, #F0D1AD);
+	color: var(--wwo-accent, #050909) !important;
+	box-shadow: 0 6px 16px rgba(240, 209, 173, 0.18);
+}
+
+/* ---- Content panel ---- */
+.wwo-account-embed .woocommerce-MyAccount-content {
+	flex: 1 1 0;
+	min-width: 0;
+	float: none;
+	width: auto;
+	margin: 0;
+	padding: 26px 28px;
+	line-height: 1.7;
+	background: var(--wwo-panel);
+	border: 1px solid var(--wwo-line);
+	border-radius: 14px;
+}
+
+.wwo-account-embed .woocommerce-MyAccount-content > :first-child { margin-top: 0; }
+.wwo-account-embed .woocommerce-MyAccount-content > :last-child { margin-bottom: 0; }
+
+.wwo-account-embed .woocommerce-MyAccount-content h2,
+.wwo-account-embed .woocommerce-MyAccount-content h3 {
+	margin: 0 0 14px;
+	font-weight: 700;
+	line-height: 1.25;
+}
+
+.wwo-account-embed .woocommerce-MyAccount-content p { margin: 0 0 16px; }
+
+/* Links — branded, readable on dark. */
+.wwo-account-embed a:not(.button):not(.wwo-btn) {
+	color: var(--wwo-secondary, #F0D1AD);
+	text-decoration: none;
+	font-weight: 600;
+}
+
+.wwo-account-embed a:not(.button):not(.wwo-btn):hover { text-decoration: underline; }
+
+/* Address / info blocks become subtle cards. */
+.wwo-account-embed .woocommerce-Addresses .woocommerce-Address,
+.wwo-account-embed .woocommerce-Address {
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid var(--wwo-line);
+	border-radius: 12px;
+	padding: 18px 20px;
+}
+
+/* Notices / messages. */
+.wwo-account-embed .woocommerce-message,
+.wwo-account-embed .woocommerce-info,
+.wwo-account-embed .woocommerce-error,
+.wwo-account-embed .woocommerce-notice {
+	background: rgba(255, 255, 255, 0.06) !important;
+	border-top: 3px solid var(--wwo-secondary, #F0D1AD) !important;
+	border-radius: 10px;
+	color: #fff !important;
+	padding: 14px 18px;
+}
+
+/* Tables (orders etc.). */
+.wwo-account-embed table.shop_table {
+	border: 1px solid var(--wwo-line);
+	border-radius: 12px;
+	border-collapse: separate;
+	border-spacing: 0;
+	overflow: hidden;
+	background: transparent;
+}
+
+.wwo-account-embed table.shop_table th,
+.wwo-account-embed table.shop_table td {
+	border-color: var(--wwo-line) !important;
+}
+
+/* Form fields readable (dark text on light field). */
 .wwo-account-embed input,
 .wwo-account-embed select,
 .wwo-account-embed textarea {
 	color: #2a2320 !important;
-	background: #f3f3f3;
+	background: #f3f3f3 !important;
+	border: 1.5px solid transparent !important;
+	border-radius: 9px !important;
+	padding: 12px 14px !important;
+	box-shadow: none !important;
 }
 
-/* Primary buttons → brand tan with dark text. */
+.wwo-account-embed input:focus,
+.wwo-account-embed select:focus,
+.wwo-account-embed textarea:focus {
+	border-color: var(--wwo-secondary, #F0D1AD) !important;
+	outline: none;
+}
+
+/* Password-field show/hide button background fix. */
+.wwo-account-embed .password-input .show-password-input,
+.wwo-account-embed .show-password-input {
+	background: transparent !important;
+}
+
+/* Buttons → brand tan with dark text. */
 .wwo-account-embed .button,
-.wwo-account-embed button[type="submit"] {
+.wwo-account-embed button[type="submit"],
+.wwo-account-embed .woocommerce-Button {
 	background: var(--wwo-secondary, #F0D1AD) !important;
 	color: var(--wwo-accent, #050909) !important;
 	border: 0 !important;
+	border-radius: 10px !important;
+	padding: 13px 22px !important;
+	font-weight: 700 !important;
+	box-shadow: none !important;
+}
+
+.wwo-account-embed .button:hover,
+.wwo-account-embed button[type="submit"]:hover {
+	opacity: 0.92;
+}
+
+/* Boxed variant (self-contained card on any background). */
+.wwo-account-embed--boxed {
+	max-width: 1040px;
+	margin: 40px auto;
+	padding: 34px;
+	background: #141110;
+	border-radius: 18px;
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+@media ( max-width: 760px ) {
+	.wwo-account-embed .woocommerce { flex-direction: column; }
+	.wwo-account-embed .woocommerce-MyAccount-navigation,
+	.wwo-account-embed .woocommerce-MyAccount-content { flex: 1 1 100%; width: 100%; }
 }
 
 @media ( max-width: 600px ) {

@@ -8,7 +8,7 @@
 
 	// Bump this when editing this file so you can confirm in the browser console
 	// that the latest version is actually loaded (not a cached/combined copy).
-	var WWO_JS_VERSION = '1.2.0';
+	var WWO_JS_VERSION = '1.3.0';
 	if ( window.console && window.console.info ) {
 		window.console.info( '[WWO] wwo-public.js loaded, v' + WWO_JS_VERSION );
 	}
@@ -276,10 +276,72 @@
 		}
 	} );
 
+	/**
+	 * Replace a native <select> with a fully styleable custom dropdown.
+	 * The real <select> is kept (hidden) so the form submits normally and the
+	 * existing change handler (wholesale hint) still fires.
+	 */
+	function buildCustomSelect( select ) {
+		var $select = $( select );
+		if ( $select.data( 'wwoCustom' ) ) {
+			return;
+		}
+		$select.data( 'wwoCustom', true );
+
+		var $wrap    = $( '<div class="wwo-cs"></div>' );
+		var $trigger = $( '<button type="button" class="wwo-cs__trigger"></button>' );
+		var $list    = $( '<ul class="wwo-cs__list" role="listbox"></ul>' );
+
+		$trigger.text( $select.find( 'option:selected' ).text() );
+
+		$select.find( 'option' ).each( function () {
+			var $opt = $( this );
+			var $li  = $( '<li class="wwo-cs__option" role="option"></li>' )
+				.text( $opt.text() )
+				.attr( 'data-value', $opt.val() );
+
+			if ( $opt.is( ':selected' ) ) {
+				$li.addClass( 'is-selected' );
+			}
+
+			$li.on( 'click', function () {
+				$select.val( $opt.val() ).trigger( 'change' );
+				$trigger.text( $opt.text() );
+				$list.find( '.wwo-cs__option' ).removeClass( 'is-selected' );
+				$li.addClass( 'is-selected' );
+				$wrap.removeClass( 'is-open' );
+			} );
+
+			$list.append( $li );
+		} );
+
+		$trigger.on( 'click', function ( e ) {
+			e.preventDefault();
+			$( '.wwo-cs' ).not( $wrap ).removeClass( 'is-open' );
+			$wrap.toggleClass( 'is-open' );
+		} );
+
+		// Move the native select into the wrapper (kept for submission, hidden).
+		$select.addClass( 'wwo-cs__native' ).after( $wrap );
+		$wrap.append( $select ).append( $trigger ).append( $list );
+	}
+
+	// Close any open custom dropdown when clicking outside.
+	$( document ).on( 'click', function ( e ) {
+		if ( ! $( e.target ).closest( '.wwo-cs' ).length ) {
+			$( '.wwo-cs' ).removeClass( 'is-open' );
+		}
+	} );
+
 	$( function () {
 		// Initialise the auth tabs to their default.
 		$( '.wwo-auth' ).each( function () {
 			activateTab( $( this ), $( this ).data( 'defaultTab' ) || 'login' );
+		} );
+
+		// Upgrade styled selects to custom dropdowns.
+		$( '.wwo-select' ).each( function () {
+			buildCustomSelect( this );
 		} );
 
 		// If an offer UI is on the page, proactively refresh the nonce so the

@@ -8,7 +8,7 @@
 
 	// Bump this when editing this file so you can confirm in the browser console
 	// that the latest version is actually loaded (not a cached/combined copy).
-	var WWO_JS_VERSION = '1.1.1';
+	var WWO_JS_VERSION = '1.2.0';
 	if ( window.console && window.console.info ) {
 		window.console.info( '[WWO] wwo-public.js loaded, v' + WWO_JS_VERSION );
 	}
@@ -258,6 +258,22 @@
 	$( document ).on( 'change', 'select[name="account_role"]', function () {
 		var isWholesale = $( this ).val() && $( this ).val().indexOf( 'wholesale' ) !== -1;
 		$( this ).closest( '.wwo-field' ).find( '.wwo-wholesale-hint' ).prop( 'hidden', ! isWholesale );
+	} );
+
+	// Show / hide password toggle (eye icon).
+	$( document ).on( 'click', '.wwo-eye', function () {
+		var $btn   = $( this );
+		var $input = $btn.closest( '.wwo-field' ).find( 'input' ).first();
+		var reveal = $input.attr( 'type' ) === 'password';
+
+		$input.attr( 'type', reveal ? 'text' : 'password' );
+		$btn.attr( 'aria-label', reveal ? 'Hide password' : 'Show password' );
+
+		var show = $btn.data( 'show' );
+		var hide = $btn.data( 'hide' );
+		if ( show && hide ) {
+			$btn.html( reveal ? hide : show );
+		}
 	} );
 
 	$( function () {

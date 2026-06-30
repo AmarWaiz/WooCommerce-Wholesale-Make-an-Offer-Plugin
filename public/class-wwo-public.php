@@ -31,15 +31,31 @@ class WWO_Public {
 
 		wp_register_script( 'wwo-public', WWO_PLUGIN_URL . 'assets/js/wwo-public.js', array( 'jquery' ), wwo_asset_ver( 'assets/js/wwo-public.js' ), true );
 
+		/*
+		 * Use a SAME-ORIGIN, host-relative admin-ajax URL. If admin_url() returns
+		 * a different host/scheme than the page the visitor is on (e.g. www vs
+		 * non-www, or http vs https behind a proxy), the browser would not send
+		 * the WordPress auth cookie and every request would look logged-out —
+		 * which fails the nonce check. Posting to the current origin guarantees
+		 * the cookie travels with the request.
+		 */
+		$ajax_url = admin_url( 'admin-ajax.php', 'relative' );
+		if ( ! $ajax_url ) {
+			$ajax_url = admin_url( 'admin-ajax.php' );
+		}
+
 		$data = array(
-			'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+			'ajaxUrl'      => $ajax_url,
+			'ajaxUrlFull'  => admin_url( 'admin-ajax.php' ),
 			'nonce'        => wp_create_nonce( 'wwo_public' ),
+			'loggedIn'     => is_user_logged_in() ? 1 : 0,
 			'pollInterval' => (int) apply_filters( 'wwo_poll_interval_ms', 15000 ),
 			'i18n'         => array(
 				'submitting'    => __( 'Submitting…', 'wc-wholesale-offers' ),
 				'counterPrompt' => __( 'Enter your counter price:', 'wc-wholesale-offers' ),
 				'confirmReject' => __( 'Withdraw this offer?', 'wc-wholesale-offers' ),
 				'error'         => __( 'Something went wrong. Please try again.', 'wc-wholesale-offers' ),
+				'loggedOut'     => __( 'You appear to be logged out. Please reload the page and sign in again.', 'wc-wholesale-offers' ),
 			),
 		);
 		wp_localize_script( 'wwo-public', 'WWO_Public', $data );

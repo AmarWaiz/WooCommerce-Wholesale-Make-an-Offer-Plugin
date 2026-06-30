@@ -28,12 +28,32 @@ class WWO_Roles {
 	}
 
 	/**
-	 * Guarantee the wholesale role and admin caps exist, even if the plugin was
-	 * updated without re-activation.
+	 * Guarantee the wholesale role AND its capabilities exist, even if the role
+	 * was created by an earlier version (add_role() does not update the caps of
+	 * an already-existing role, so we repair them explicitly here).
 	 */
 	public function ensure_role_exists() {
-		if ( ! get_role( self::ROLE ) || ! get_role( 'administrator' ) || ! get_role( 'administrator' )->has_cap( 'manage_wwo_offers' ) ) {
+		$role = get_role( self::ROLE );
+
+		if ( ! $role ) {
 			self::add_roles();
+			$role = get_role( self::ROLE );
+		}
+
+		// Repair the offer capability on the wholesale role if missing.
+		if ( $role && ! $role->has_cap( 'wwo_make_offer' ) ) {
+			$role->add_cap( 'wwo_make_offer' );
+		}
+
+		// Repair administrator capabilities.
+		$admin = get_role( 'administrator' );
+		if ( $admin ) {
+			if ( ! $admin->has_cap( 'manage_wwo_offers' ) ) {
+				$admin->add_cap( 'manage_wwo_offers' );
+			}
+			if ( ! $admin->has_cap( 'wwo_make_offer' ) ) {
+				$admin->add_cap( 'wwo_make_offer' );
+			}
 		}
 	}
 

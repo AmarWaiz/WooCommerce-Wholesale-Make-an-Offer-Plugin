@@ -6,36 +6,123 @@
 ( function ( $ ) {
 	'use strict';
 
+	// Bump this when editing this file so you can confirm in the browser console
+	// that the latest version is actually loaded (not a cached/combined copy).
+	var WWO_JS_VERSION = '1.1.1';
+	if ( window.console && window.console.info ) {
+		window.console.info( '[WWO] wwo-public.js loaded, v' + WWO_JS_VERSION );
+	}
+
 	var cfg = window.WWO_Public || {};
 
 	/**
-	 * Small helper for POSTing to admin-ajax.
+	 * Low-level POST to admin-ajax with an explicit nonce.
 	 */
-	function post( action, data ) {
+	function rawPost( action, data, nonce ) {
 		return $.ajax( {
 			url: cfg.ajaxUrl,
 			type: 'POST',
 			dataType: 'json',
-			data: $.extend( { action: action, nonce: cfg.nonce }, data )
+			data: $.extend( { action: action, nonce: nonce }, data )
 		} );
 	}
 
 	/**
-	 * Build a human-readable reason from a failed jqXHR so the customer (and we)
-	 * can see WHY a request failed instead of a generic message.
+	 * Fetch a fresh nonce for the current user and store it. Resolves with the
+	 * new nonce; REJECTS if admin-ajax considers us logged out (which is the
+	 * real cause when a fresh nonce still fails the security check).
+	 */
+	function refreshNonce() {
+		var dfd = $.Deferred();
+		rawPost( 'wwo_refresh_nonce', {}, '' )
+			.done( function ( res ) {
+				if ( res && res.success && res.data && res.data.nonce ) {
+					cfg.nonce = res.data.nonce;
+					dfd.resolve( cfg.nonce );
+				} else {
+					dfd.reject( { _wwoLoggedOut: true } );
+				}
+			} )
+			.fail( function ( jqXHR ) {
+				// 403 here means admin-ajax sees the request as logged out.
+				dfd.reject( { _wwoLoggedOut: ( jqXHR && jqXHR.status === 403 ), status: jqXHR ? jqXHR.status : 0 } );
+			} );
+		return dfd.promise();
+	}
+
+	/**
+	 * POST that transparently refreshes the nonce and retries once on a 403
+	 * ("security check failed"), then resolves/rejects like a normal request.
+	 */
+	/**
+	 * Is this failure specifically a nonce/security failure (vs. a real business
+	 * error like "not approved")? Only those should trigger a nonce refresh.
+	 */
+	function isNonceFailure( jqXHR ) {
+		if ( ! jqXHR || jqXHR.status !== 403 ) {
+			return false;
+		}
+		var rj = jqXHR.responseJSON;
+		// Our server tags genuine nonce failures with code 'bad_nonce'.
+		if ( rj && rj.data && rj.data.code === 'bad_nonce' ) {
+			return true;
+		}
+		// A bare "-1"/empty body (legacy check_ajax_referer) is also a nonce fail.
+		if ( ! rj && ( jqXHR.responseText === '-1' || jqXHR.responseText === '0' || jqXHR.responseText === '' ) ) {
+			return true;
+		}
+		return false;
+	}
+
+	function post( action, data ) {
+		var dfd = $.Deferred();
+
+		rawPost( action, data, cfg.nonce )
+			.done( function ( res ) { dfd.resolve( res ); } )
+			.fail( function ( jqXHR ) {
+				if ( isNonceFailure( jqXHR ) ) {
+					// Stale/cached nonce — refresh once and retry.
+					refreshNonce()
+						.done( function () {
+							rawPost( action, data, cfg.nonce )
+								.done( function ( res ) { dfd.resolve( res ); } )
+								.fail( function ( jq2 ) { dfd.reject( jq2 ); } );
+						} )
+						.fail( function ( info ) {
+							// Could not get a valid nonce → genuinely logged out at admin-ajax.
+							dfd.reject( $.extend( { status: 403 }, info ) );
+						} );
+				} else {
+					// Real error (e.g. not approved): surface the server message as-is.
+					dfd.reject( jqXHR );
+				}
+			} );
+
+		return dfd.promise();
+	}
+
+	/**
+	 * Build a human-readable reason from a failed request so the customer (and
+	 * we) can see WHY it failed instead of a generic message.
 	 */
 	function failReason( jqXHR ) {
 		if ( ! cfg.ajaxUrl || ! cfg.nonce ) {
 			return 'Offer script is not configured (WWO_Public missing). Clear any page cache and reload.';
+		}
+		if ( jqXHR && jqXHR._wwoLoggedOut ) {
+			return ( cfg.i18n && cfg.i18n.loggedOut ) ? cfg.i18n.loggedOut
+				: 'You appear to be logged out on this connection. Please reload and sign in again.';
+		}
+		// Prefer an explicit message from the server (e.g. "not approved",
+		// "offer too high"), even on a 403 — only fall back to generic text.
+		if ( jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.data && jqXHR.responseJSON.data.message ) {
+			return jqXHR.responseJSON.data.message;
 		}
 		if ( jqXHR && jqXHR.status === 403 ) {
 			return 'Your session expired (security check failed). Please reload the page and try again.';
 		}
 		if ( jqXHR && jqXHR.status === 0 ) {
 			return 'Could not reach the server. Check your connection and reload.';
-		}
-		if ( jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.data && jqXHR.responseJSON.data.message ) {
-			return jqXHR.responseJSON.data.message;
 		}
 		if ( jqXHR && jqXHR.status ) {
 			return ( cfg.i18n.error || 'Something went wrong.' ) + ' (HTTP ' + jqXHR.status + ')';
@@ -178,6 +265,12 @@
 		$( '.wwo-auth' ).each( function () {
 			activateTab( $( this ), $( this ).data( 'defaultTab' ) || 'login' );
 		} );
+
+		// If an offer UI is on the page, proactively refresh the nonce so the
+		// first action works even when the page was served from cache.
+		if ( cfg.ajaxUrl && ( $( '.wwo-offer-box' ).length || $( '.wwo-offer-actions' ).length ) ) {
+			refreshNonce();
+		}
 
 		if ( cfg.pollInterval && cfg.ajaxUrl ) {
 			window.setInterval( poll, cfg.pollInterval );

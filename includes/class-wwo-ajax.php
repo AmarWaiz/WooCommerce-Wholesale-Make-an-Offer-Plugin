@@ -28,6 +28,9 @@ class WWO_Ajax {
 		add_action( 'wp_ajax_wwo_admin_offer_action', array( $this, 'admin_offer_action' ) );
 		add_action( 'wp_ajax_wwo_admin_approval', array( $this, 'admin_approval' ) );
 
+		// Issues a fresh nonce to the current user (survives page caching).
+		add_action( 'wp_ajax_wwo_refresh_nonce', array( $this, 'refresh_nonce' ) );
+
 		// Start an output buffer before each of our handlers so any stray PHP
 		// notice/warning is captured (and later discarded) instead of corrupting
 		// the JSON response. Runs at priority 0, before the handlers (priority 10).
@@ -38,6 +41,7 @@ class WWO_Ajax {
 			'wwo_clear_unread',
 			'wwo_admin_offer_action',
 			'wwo_admin_approval',
+			'wwo_refresh_nonce',
 		);
 		foreach ( $actions as $a ) {
 			add_action( 'wp_ajax_' . $a, array( $this, 'start_buffer' ), 0 );
@@ -49,6 +53,46 @@ class WWO_Ajax {
 	 */
 	public function start_buffer() {
 		ob_start();
+	}
+
+	/**
+	 * Return a fresh 'wwo_public' nonce for the current logged-in user.
+	 *
+	 * No nonce is required to call this: it only ever returns a token bound to
+	 * the already-authenticated current user, which is useless to anyone else.
+	 * This lets the front end recover when a page-cached nonce has gone stale.
+	 */
+	public function refresh_nonce() {
+		if ( ! is_user_logged_in() ) {
+			$this->err( array( 'message' => __( 'Please log in.', 'wc-wholesale-offers' ), 'logged_in' => 0 ), 403 );
+		}
+		$this->ok( array( 'nonce' => wp_create_nonce( 'wwo_public' ) ) );
+	}
+
+	/**
+	 * Verify the public nonce and return a self-explanatory JSON error on
+	 * failure. Unlike check_ajax_referer() (which dies with a bare "-1"), this
+	 * tells us WHETHER the request is authenticated — so the Network tab alone
+	 * reveals whether the cause is a stale nonce (logged_in:1) or a missing auth
+	 * cookie at admin-ajax (logged_in:0).
+	 */
+	private function verify_public_request() {
+		$nonce = isset( $_REQUEST['nonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) ) : '';
+		if ( wp_verify_nonce( $nonce, 'wwo_public' ) ) {
+			return; // Valid.
+		}
+
+		$logged_in = is_user_logged_in();
+		$this->err(
+			array(
+				'code'      => 'bad_nonce',
+				'logged_in' => $logged_in ? 1 : 0,
+				'message'   => $logged_in
+					? __( 'Security check failed. Please reload the page and try again.', 'wc-wholesale-offers' )
+					: __( 'You appear to be logged out on this connection. Please reload the page and sign in again.', 'wc-wholesale-offers' ),
+			),
+			403
+		);
 	}
 
 	/**
@@ -90,11 +134,19 @@ class WWO_Ajax {
 	 * Submit a new offer.
 	 */
 	public function submit_offer() {
-		check_ajax_referer( 'wwo_public', 'nonce' );
+		$this->verify_public_request();
 
 		$user_id = get_current_user_id();
-		if ( ! $user_id || ! current_user_can( 'wwo_make_offer' ) || ! WWO_Roles::is_approved_wholesale( $user_id ) ) {
-			$this->err( array( 'message' => __( 'Only approved wholesale customers can make offers.', 'wc-wholesale-offers' ) ), 403 );
+		// Gate on approved-wholesale status — the same rule that shows the
+		// "Make an Offer" box — so the button and the action never disagree.
+		if ( ! $user_id || ! WWO_Roles::is_approved_wholesale( $user_id ) ) {
+			$this->err(
+				array(
+					'message'   => __( 'Only approved wholesale customers can make offers.', 'wc-wholesale-offers' ),
+					'logged_in' => $user_id ? 1 : 0,
+				),
+				403
+			);
 		}
 
 		$product_id   = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
@@ -119,7 +171,7 @@ class WWO_Ajax {
 	 * Customer responds to an offer (accept/reject/counter).
 	 */
 	public function customer_respond() {
-		check_ajax_referer( 'wwo_public', 'nonce' );
+		$this->verify_public_request();
 
 		$user_id = get_current_user_id();
 		if ( ! $user_id ) {
@@ -155,7 +207,7 @@ class WWO_Ajax {
 	 * Polling endpoint: returns the user's offers + unread badge.
 	 */
 	public function poll() {
-		check_ajax_referer( 'wwo_public', 'nonce' );
+		$this->verify_public_request();
 
 		$user_id = get_current_user_id();
 		if ( ! $user_id ) {
@@ -192,7 +244,7 @@ class WWO_Ajax {
 	 * Reset the customer's unread badge.
 	 */
 	public function clear_unread() {
-		check_ajax_referer( 'wwo_public', 'nonce' );
+		$this->verify_public_request();
 		$user_id = get_current_user_id();
 		if ( $user_id ) {
 			update_user_meta( $user_id, 'wwo_unread', 0 );

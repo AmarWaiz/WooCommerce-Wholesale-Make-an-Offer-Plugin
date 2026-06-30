@@ -16,9 +16,6 @@
 	--wwo-on-dark: var(--wwo-light, #FFFFFF);
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 	width: 100%;
-	max-width: 600px;
-	margin: auto;
-	padding: 0 16px;
 	box-sizing: border-box;
 	color: var(--wwo-on-dark);
 }

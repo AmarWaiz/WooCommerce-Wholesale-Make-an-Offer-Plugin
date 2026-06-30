@@ -92,7 +92,23 @@ class WWO_Shortcodes {
 			$default_tab = ( 'register' === $atts['default'] ) ? 'register' : 'login';
 			include $template;
 		}
-		return ob_get_clean();
+		return self::no_autop( ob_get_clean() );
+	}
+
+	/**
+	 * Collapse whitespace between HTML tags so WordPress's wpautop() does not
+	 * inject stray <p>/<br> tags into the form (which create empty gaps,
+	 * especially around the hidden inputs before the submit button).
+	 *
+	 * Only whitespace that sits purely between tags is removed, so visible text
+	 * content and inline spacing are preserved.
+	 *
+	 * @param string $html Raw markup.
+	 * @return string
+	 */
+	private static function no_autop( $html ) {
+		$collapsed = preg_replace( '/>\s+</', '><', (string) $html );
+		return null === $collapsed ? (string) $html : $collapsed;
 	}
 
 	/**
@@ -127,6 +143,6 @@ class WWO_Shortcodes {
 			</div>
 		</div>
 		<?php
-		return ob_get_clean();
+		return self::no_autop( ob_get_clean() );
 	}
 }

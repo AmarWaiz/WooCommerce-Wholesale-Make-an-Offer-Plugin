@@ -1,8 +1,10 @@
 <?php
 /**
- * Login / Registration template (minimal, palette-driven).
+ * Login / Registration template (dark / transparent, palette-driven).
  *
- * Override by copying to yourtheme/wc-wholesale-offers/login-register.php.
+ * Designed to sit on a dark page section: the container background is
+ * transparent and text is light. Override by copying to
+ * yourtheme/wc-wholesale-offers/login-register.php.
  *
  * @var string $default_tab Which tab to show first (login|register).
  *
@@ -22,7 +24,7 @@ $wwo_redirect = isset( $_GET['redirect_to'] ) ? esc_url_raw( wp_unslash( $_GET['
 $wwo_eye     = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
 $wwo_eye_off = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 ?>
-<div class="wwo-auth wwo-auth--minimal" data-default-tab="<?php echo esc_attr( $wwo_default_tab ); ?>">
+<div class="wwo-auth wwo-auth--dark" data-default-tab="<?php echo esc_attr( $wwo_default_tab ); ?>">
 	<div class="wwo-auth__card">
 
 		<?php if ( $wwo_error ) : ?>
@@ -34,64 +36,64 @@ $wwo_eye_off = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stro
 
 		<?php // --- Login form --- ?>
 		<form class="wwo-form wwo-form--login" method="post" data-panel="login">
-			<h1 class="wwo-sr-only"><?php esc_html_e( 'Sign in', 'wc-wholesale-offers' ); ?></h1>
 
 			<div class="wwo-field">
-				<label class="wwo-sr-only" for="wwo-login-user"><?php esc_html_e( 'Username or email', 'wc-wholesale-offers' ); ?></label>
-				<input id="wwo-login-user" type="text" name="username" autocomplete="username" placeholder="<?php esc_attr_e( 'Email address', 'wc-wholesale-offers' ); ?>" required>
+				<label class="wwo-label" for="wwo-login-user"><?php esc_html_e( 'Email Address', 'wc-wholesale-offers' ); ?></label>
+				<input id="wwo-login-user" type="text" name="username" autocomplete="username" placeholder="<?php esc_attr_e( 'name@example.com', 'wc-wholesale-offers' ); ?>" required>
 			</div>
 
 			<div class="wwo-field wwo-field--password">
-				<label class="wwo-sr-only" for="wwo-login-pass"><?php esc_html_e( 'Password', 'wc-wholesale-offers' ); ?></label>
-				<input id="wwo-login-pass" type="password" name="password" autocomplete="current-password" placeholder="<?php esc_attr_e( 'Password', 'wc-wholesale-offers' ); ?>" required>
-				<button type="button" class="wwo-eye" aria-label="<?php esc_attr_e( 'Show password', 'wc-wholesale-offers' ); ?>" data-show="<?php echo esc_attr( $wwo_eye ); ?>" data-hide="<?php echo esc_attr( $wwo_eye_off ); ?>"><?php echo $wwo_eye; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
+				<label class="wwo-label" for="wwo-login-pass"><?php esc_html_e( 'Password', 'wc-wholesale-offers' ); ?></label>
+				<div class="wwo-input-wrap">
+					<input id="wwo-login-pass" type="password" name="password" autocomplete="current-password" placeholder="<?php esc_attr_e( 'Password', 'wc-wholesale-offers' ); ?>" required>
+					<button type="button" class="wwo-eye" aria-label="<?php esc_attr_e( 'Show password', 'wc-wholesale-offers' ); ?>" data-show="<?php echo esc_attr( $wwo_eye ); ?>" data-hide="<?php echo esc_attr( $wwo_eye_off ); ?>"><?php echo $wwo_eye; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
+				</div>
+				<a class="wwo-forgot" href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php esc_html_e( 'Forgot password?', 'wc-wholesale-offers' ); ?></a>
 			</div>
 
-			<div class="wwo-field-row">
-				<label class="wwo-checkbox">
-					<input type="checkbox" name="remember" value="1">
-					<span><?php esc_html_e( 'Remember me', 'wc-wholesale-offers' ); ?></span>
-				</label>
-				<a class="wwo-link" href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php esc_html_e( 'Forgot password?', 'wc-wholesale-offers' ); ?></a>
-			</div>
+			<button type="button" class="wwo-btn wwo-btn--outline" data-tab-link="register"><?php esc_html_e( 'Create an Account', 'wc-wholesale-offers' ); ?></button>
+
+			<label class="wwo-checkbox">
+				<input type="checkbox" name="remember" value="1">
+				<span><?php esc_html_e( 'Keep me signed in on this device.', 'wc-wholesale-offers' ); ?></span>
+			</label>
 
 			<input type="hidden" name="wwo_action" value="login">
 			<input type="hidden" name="redirect_to" value="<?php echo esc_attr( $wwo_redirect ); ?>">
 			<?php wp_nonce_field( 'wwo_login', 'wwo_login_nonce' ); ?>
 
-			<button type="submit" class="wwo-btn wwo-btn--submit wwo-btn--block"><?php esc_html_e( 'Login', 'wc-wholesale-offers' ); ?></button>
-
-			<p class="wwo-form__switch"><?php esc_html_e( "Don't have an account?", 'wc-wholesale-offers' ); ?> <button type="button" class="wwo-link" data-tab-link="register"><?php esc_html_e( 'Register', 'wc-wholesale-offers' ); ?></button></p>
+			<button type="submit" class="wwo-btn wwo-btn--submit"><?php esc_html_e( 'Login', 'wc-wholesale-offers' ); ?></button>
 		</form>
 
 		<?php // --- Register form --- ?>
 		<form class="wwo-form wwo-form--register" method="post" data-panel="register">
-			<h1 class="wwo-sr-only"><?php esc_html_e( 'Create account', 'wc-wholesale-offers' ); ?></h1>
 
 			<div class="wwo-grid-2">
 				<div class="wwo-field">
-					<label class="wwo-sr-only" for="wwo-reg-first"><?php esc_html_e( 'First name', 'wc-wholesale-offers' ); ?></label>
+					<label class="wwo-label" for="wwo-reg-first"><?php esc_html_e( 'First name', 'wc-wholesale-offers' ); ?></label>
 					<input id="wwo-reg-first" type="text" name="first_name" autocomplete="given-name" placeholder="<?php esc_attr_e( 'First name', 'wc-wholesale-offers' ); ?>">
 				</div>
 				<div class="wwo-field">
-					<label class="wwo-sr-only" for="wwo-reg-last"><?php esc_html_e( 'Last name', 'wc-wholesale-offers' ); ?></label>
+					<label class="wwo-label" for="wwo-reg-last"><?php esc_html_e( 'Last name', 'wc-wholesale-offers' ); ?></label>
 					<input id="wwo-reg-last" type="text" name="last_name" autocomplete="family-name" placeholder="<?php esc_attr_e( 'Last name', 'wc-wholesale-offers' ); ?>">
 				</div>
 			</div>
 
 			<div class="wwo-field">
-				<label class="wwo-sr-only" for="wwo-reg-email"><?php esc_html_e( 'Email address', 'wc-wholesale-offers' ); ?></label>
-				<input id="wwo-reg-email" type="email" name="email" autocomplete="email" placeholder="<?php esc_attr_e( 'Email address', 'wc-wholesale-offers' ); ?>" required>
+				<label class="wwo-label" for="wwo-reg-email"><?php esc_html_e( 'Email Address', 'wc-wholesale-offers' ); ?></label>
+				<input id="wwo-reg-email" type="email" name="email" autocomplete="email" placeholder="<?php esc_attr_e( 'name@example.com', 'wc-wholesale-offers' ); ?>" required>
 			</div>
 
 			<div class="wwo-field wwo-field--password">
-				<label class="wwo-sr-only" for="wwo-reg-pass"><?php esc_html_e( 'Password', 'wc-wholesale-offers' ); ?></label>
-				<input id="wwo-reg-pass" type="password" name="password" autocomplete="new-password" minlength="8" placeholder="<?php esc_attr_e( 'Password (min. 8 characters)', 'wc-wholesale-offers' ); ?>" required>
-				<button type="button" class="wwo-eye" aria-label="<?php esc_attr_e( 'Show password', 'wc-wholesale-offers' ); ?>" data-show="<?php echo esc_attr( $wwo_eye ); ?>" data-hide="<?php echo esc_attr( $wwo_eye_off ); ?>"><?php echo $wwo_eye; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
+				<label class="wwo-label" for="wwo-reg-pass"><?php esc_html_e( 'Password', 'wc-wholesale-offers' ); ?></label>
+				<div class="wwo-input-wrap">
+					<input id="wwo-reg-pass" type="password" name="password" autocomplete="new-password" minlength="8" placeholder="<?php esc_attr_e( 'Min. 8 characters', 'wc-wholesale-offers' ); ?>" required>
+					<button type="button" class="wwo-eye" aria-label="<?php esc_attr_e( 'Show password', 'wc-wholesale-offers' ); ?>" data-show="<?php echo esc_attr( $wwo_eye ); ?>" data-hide="<?php echo esc_attr( $wwo_eye_off ); ?>"><?php echo $wwo_eye; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
+				</div>
 			</div>
 
 			<div class="wwo-field">
-				<label class="wwo-sr-only" for="wwo-reg-role"><?php esc_html_e( 'Account type', 'wc-wholesale-offers' ); ?></label>
+				<label class="wwo-label" for="wwo-reg-role"><?php esc_html_e( 'Account type', 'wc-wholesale-offers' ); ?></label>
 				<select id="wwo-reg-role" name="account_role" class="wwo-select">
 					<option value="customer"><?php esc_html_e( 'Customer (retail)', 'wc-wholesale-offers' ); ?></option>
 					<option value="<?php echo esc_attr( WWO_Roles::ROLE ); ?>"><?php esc_html_e( 'Wholesale Customer', 'wc-wholesale-offers' ); ?></option>
@@ -99,11 +101,16 @@ $wwo_eye_off = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stro
 				<span class="wwo-field__hint wwo-wholesale-hint" hidden><?php esc_html_e( 'Wholesale accounts require admin approval before trade pricing is unlocked.', 'wc-wholesale-offers' ); ?></span>
 			</div>
 
+			<label class="wwo-checkbox">
+				<input type="checkbox" name="agree" value="1" required>
+				<span><?php esc_html_e( 'Creating an account means you’re okay with our Terms of Service, Privacy Policy, and our default Notification Settings.', 'wc-wholesale-offers' ); ?></span>
+			</label>
+
 			<input type="hidden" name="wwo_action" value="register">
 			<input type="hidden" name="redirect_to" value="<?php echo esc_attr( $wwo_redirect ); ?>">
 			<?php wp_nonce_field( 'wwo_register', 'wwo_register_nonce' ); ?>
 
-			<button type="submit" class="wwo-btn wwo-btn--submit wwo-btn--block"><?php esc_html_e( 'Create account', 'wc-wholesale-offers' ); ?></button>
+			<button type="submit" class="wwo-btn wwo-btn--submit"><?php esc_html_e( 'Create Account', 'wc-wholesale-offers' ); ?></button>
 
 			<p class="wwo-form__switch"><?php esc_html_e( 'Already have an account?', 'wc-wholesale-offers' ); ?> <button type="button" class="wwo-link" data-tab-link="login"><?php esc_html_e( 'Sign in', 'wc-wholesale-offers' ); ?></button></p>
 		</form>

@@ -31,17 +31,27 @@ class WWO_Account {
 
 	/**
 	 * Render a notice passed via the ?wwo_notice query arg after a redirect.
+	 *
+	 * The "pending" state is authoritative via pending_banner() (which reads the
+	 * real account status), so we deliberately ignore a stale ?wwo_notice=pending
+	 * left in the URL — otherwise an already-approved customer who refreshes the
+	 * page would keep seeing "waiting for approval".
 	 */
 	public function query_notice() {
 		if ( empty( $_GET['wwo_notice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
-		$code    = sanitize_key( wp_unslash( $_GET['wwo_notice'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$code = sanitize_key( wp_unslash( $_GET['wwo_notice'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		// Never trust a URL param for the pending state.
+		if ( 'pending' === $code ) {
+			return;
+		}
+
 		$message = WWO_Registration::message_for( $code, 'notice' );
 		if ( $message ) {
 			printf(
-				'<div class="wwo-alert wwo-alert--%1$s">%2$s</div>',
-				'pending' === $code ? 'info' : 'success',
+				'<div class="wwo-alert wwo-alert--success">%s</div>',
 				esc_html( $message )
 			);
 		}

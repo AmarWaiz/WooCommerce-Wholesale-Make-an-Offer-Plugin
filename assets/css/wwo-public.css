@@ -126,7 +126,79 @@
 	margin-bottom: 18px;
 	font-size: 14px;
 }
-.wwo-alert--info { background: rgba(240, 209, 173, 0.35); color: var(--wwo-primary); }
+.wwo-alert--info { background: rgba(240, 209, 173, 0.35); color: var(--wwo-primary, #332A28); }
+.wwo-alert--success { background: #e8f5e9; color: #1b5e20; }
+.wwo-alert--error { background: #fdecea; color: #8a1c1c; }
+
+/* =====================================================================
+ * My Account area — branded with the plugin palette.
+ * Scoped to .woocommerce-account so it stays out of the rest of the theme.
+ * =================================================================== */
+.woocommerce-account .woocommerce-MyAccount-navigation ul {
+	list-style: none;
+	margin: 0 0 24px;
+	padding: 0;
+	border: 1px solid rgba( 51, 42, 40, 0.12 );
+	border-radius: 12px;
+	overflow: hidden;
+}
+
+.woocommerce-account .woocommerce-MyAccount-navigation ul li {
+	border-bottom: 1px solid rgba( 51, 42, 40, 0.08 );
+	margin: 0;
+}
+
+.woocommerce-account .woocommerce-MyAccount-navigation ul li:last-child {
+	border-bottom: 0;
+}
+
+.woocommerce-account .woocommerce-MyAccount-navigation ul li a {
+	display: block;
+	padding: 13px 18px;
+	color: var(--wwo-primary, #332A28);
+	font-weight: 600;
+	text-decoration: none;
+	transition: background 0.18s ease, color 0.18s ease;
+}
+
+.woocommerce-account .woocommerce-MyAccount-navigation ul li a:hover {
+	background: rgba( 240, 209, 173, 0.35 );
+}
+
+.woocommerce-account .woocommerce-MyAccount-navigation ul li.is-active a {
+	background: var(--wwo-primary, #332A28);
+	color: var(--wwo-light, #FFFFFF);
+}
+
+/* Dashboard headings + buttons */
+.woocommerce-account .woocommerce-MyAccount-content h2,
+.woocommerce-account .woocommerce-MyAccount-content h3 {
+	color: var(--wwo-primary, #332A28);
+}
+
+.woocommerce-account .woocommerce-MyAccount-content a.button,
+.woocommerce-account .woocommerce-MyAccount-content button.button,
+.woocommerce-account .woocommerce-Button {
+	background: var(--wwo-primary, #332A28);
+	color: var(--wwo-light, #FFFFFF);
+	border: 0;
+	border-radius: 8px;
+	font-weight: 600;
+}
+
+.woocommerce-account .woocommerce-MyAccount-content a.button:hover,
+.woocommerce-account .woocommerce-MyAccount-content button.button:hover,
+.woocommerce-account .woocommerce-Button:hover {
+	opacity: 0.92;
+	color: var(--wwo-light, #FFFFFF);
+}
+
+/* The "My Offers" table header bar */
+.woocommerce-account .wwo-offers-table th {
+	color: var(--wwo-primary, #332A28);
+}
+
+/* Account-menu unread badge already styled above (.wwo-badge-count). */
 
 @media ( max-width: 600px ) {
 	.wwo-offers-table thead { display: none; }

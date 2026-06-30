@@ -25,8 +25,52 @@ class WWO_Account {
 		// Show a pending banner at the top of My Account for unapproved wholesale users.
 		add_action( 'woocommerce_account_dashboard', array( $this, 'pending_banner' ) );
 
+		// Quick-action cards on the dashboard.
+		add_action( 'woocommerce_account_dashboard', array( $this, 'dashboard_cards' ), 20 );
+
 		// Surface post-auth notices (e.g. "welcome", "waiting for approval").
 		add_action( 'woocommerce_before_account_navigation', array( $this, 'query_notice' ) );
+	}
+
+	/**
+	 * Render quick-action cards on the account dashboard.
+	 */
+	public function dashboard_cards() {
+		$icons = array(
+			'orders'       => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
+			'downloads'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+			'edit-address' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+			'edit-account' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+			'offers'       => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
+		);
+
+		$cards = array(
+			array( 'url' => wc_get_account_endpoint_url( 'orders' ),       'icon' => $icons['orders'],       'title' => __( 'Orders', 'wc-wholesale-offers' ),         'desc' => __( 'View and track your orders', 'wc-wholesale-offers' ) ),
+			array( 'url' => wc_get_account_endpoint_url( 'downloads' ),    'icon' => $icons['downloads'],    'title' => __( 'Downloads', 'wc-wholesale-offers' ),      'desc' => __( 'Access your downloadable files', 'wc-wholesale-offers' ) ),
+			array( 'url' => wc_get_account_endpoint_url( 'edit-address' ), 'icon' => $icons['edit-address'], 'title' => __( 'Addresses', 'wc-wholesale-offers' ),      'desc' => __( 'Manage shipping & billing', 'wc-wholesale-offers' ) ),
+			array( 'url' => wc_get_account_endpoint_url( 'edit-account' ), 'icon' => $icons['edit-account'], 'title' => __( 'Account details', 'wc-wholesale-offers' ), 'desc' => __( 'Update your profile & password', 'wc-wholesale-offers' ) ),
+		);
+
+		if ( WWO_Roles::is_wholesale() ) {
+			$cards[] = array(
+				'url'   => wc_get_account_endpoint_url( self::ENDPOINT ),
+				'icon'  => $icons['offers'],
+				'title' => __( 'My Offers', 'wc-wholesale-offers' ),
+				'desc'  => __( 'Track your price offers', 'wc-wholesale-offers' ),
+			);
+		}
+
+		echo '<div class="wwo-dash-cards">';
+		foreach ( $cards as $card ) {
+			printf(
+				'<a class="wwo-dash-card" href="%1$s"><span class="wwo-dash-card__icon">%2$s</span><span class="wwo-dash-card__body"><span class="wwo-dash-card__title">%3$s</span><span class="wwo-dash-card__desc">%4$s</span></span><span class="wwo-dash-card__arrow">&rarr;</span></a>',
+				esc_url( $card['url'] ),
+				$card['icon'], // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted inline SVG.
+				esc_html( $card['title'] ),
+				esc_html( $card['desc'] )
+			);
+		}
+		echo '</div>';
 	}
 
 	/**

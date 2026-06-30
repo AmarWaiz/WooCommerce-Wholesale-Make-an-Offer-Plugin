@@ -45,7 +45,14 @@ class WWO_Shortcodes {
 		// Logged in → render the account dashboard inline (same page, no redirect).
 		if ( is_user_logged_in() ) {
 			$boxed = ( 'boxed' === $atts['layout'] ) ? ' wwo-account-embed--boxed' : '';
-			return '<div class="wwo-account-embed' . esc_attr( $boxed ) . '">' . do_shortcode( '[woocommerce_my_account]' ) . '</div>';
+
+			$banner = '<div class="wwo-acc-banner"><div class="wwo-acc-banner__inner">'
+				. '<h1 class="wwo-acc-banner__title">' . esc_html__( 'My Account', 'wc-wholesale-offers' ) . '</h1>'
+				. '<nav class="wwo-acc-banner__crumb"><a href="' . esc_url( home_url( '/' ) ) . '">' . esc_html__( 'Home', 'wc-wholesale-offers' ) . '</a>'
+				. '<span>/</span>' . esc_html__( 'My Account', 'wc-wholesale-offers' ) . '</nav>'
+				. '</div></div>';
+
+			return '<div class="wwo-account-embed' . esc_attr( $boxed ) . '">' . $banner . do_shortcode( '[woocommerce_my_account]' ) . '</div>';
 		}
 
 		// Logged out → login / registration form.

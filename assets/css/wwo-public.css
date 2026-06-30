@@ -209,21 +209,92 @@
 	--wwo-panel: rgba(255, 255, 255, 0.04);
 	color: #fff;
 	font-size: 15px;
-	max-width: 1120px;
+	
 	margin: 0 auto;
-	padding: 40px 20px;
+	
 
 	/* Vertically centre the dashboard in the viewport. */
 	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
+	
 }
 
-/* Center the nav + content block within the dashboard. */
+/* Ensure width:100% includes padding/border so the banner and the
+   nav+content row line up to exactly the same width. */
+.wwo-account-embed,
+.wwo-account-embed *,
+.wwo-account-embed *::before,
+.wwo-account-embed *::after {
+	box-sizing: border-box;
+}
+
+/* Nav + content fill the full width so they align with the banner. */
 .wwo-account-embed .woocommerce {
-	justify-content: center;
+	justify-content: flex-start;
 	width: 100%;
+}
+
+/* ---- Glass "My Account" banner (compact) ---- */
+.wwo-acc-banner {
+	position: relative;
+	width: 100%;
+	margin: 0 0 50px;
+	padding: 50px 0px;
+	overflow: hidden;
+	background: linear-gradient( 135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03) );
+	-webkit-backdrop-filter: blur(14px) saturate(130%);
+	backdrop-filter: blur(14px) saturate(130%);
+}
+
+/* Subtle tan sheen for the glass. */
+.wwo-acc-banner::before {
+	content: "";
+	position: absolute;
+	top: -40%;
+	right: -10%;
+	width: 280px;
+	height: 200px;
+	background: radial-gradient( circle, rgba(240, 209, 173, 0.18), transparent 70% );
+	pointer-events: none;
+}
+
+.wwo-acc-banner__inner {
+	position: relative;
+	z-index: 1;
+	text-align: center;
+}
+
+.wwo-acc-banner__title {
+	margin: 0;
+	font-size: 24px;
+	line-height: 1.2;
+	font-weight: 800;
+	letter-spacing: 0.2px;
+	color: #fff !important;
+}
+
+.wwo-acc-banner__crumb {
+	margin-top: 6px;
+	font-size: 12.5px;
+	color: rgba(255, 255, 255, 0.62);
+}
+
+.wwo-acc-banner__crumb a {
+	color: rgba(255, 255, 255, 0.82) !important;
+	text-decoration: none;
+}
+
+.wwo-acc-banner__crumb a:hover { text-decoration: underline; }
+
+.wwo-acc-banner__crumb span {
+	margin: 0 7px;
+	opacity: 0.55;
+}
+
+@media ( max-width: 600px ) {
+	.wwo-acc-banner { padding: 15px 18px; margin-bottom: 20px; }
+	.wwo-acc-banner__title { font-size: 20px; }
 }
 
 .wwo-account-embed,
@@ -246,7 +317,6 @@
 /* Two-column layout with comfortable spacing. */
 .wwo-account-embed .woocommerce {
 	display: flex;
-	flex-wrap: wrap;
 	gap: 30px;
 	align-items: flex-start;
 }
@@ -297,11 +367,12 @@
 
 /* ---- Content panel ---- */
 .wwo-account-embed .woocommerce-MyAccount-content {
-	flex: 1 1 0;
+	flex: 1 1 auto !important;
 	min-width: 0;
-	float: none;
-	width: auto;
-	margin: 0;
+	float: none !important;
+	width: auto !important;
+	max-width: none !important;
+	margin: 0 !important;
 	padding: 26px 28px;
 	line-height: 1.7;
 	background: var(--wwo-panel);
@@ -320,6 +391,93 @@
 }
 
 .wwo-account-embed .woocommerce-MyAccount-content p { margin: 0 0 16px; }
+
+/* Tidy the default WooCommerce dashboard greeting. */
+.wwo-account-embed .woocommerce-MyAccount-content .woocommerce-MyAccount-content__greeting,
+.wwo-account-embed .woocommerce-MyAccount-content > p:first-of-type {
+	font-size: 18px;
+	font-weight: 600;
+	color: #fff;
+}
+
+/* Hide the verbose default "From your account dashboard…" line. */
+.wwo-account-embed .woocommerce-MyAccount-content > p:nth-of-type(2) {
+	display: none;
+}
+
+/* ---- Dashboard quick-action cards ---- */
+.wwo-dash-cards {
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 220px, 1fr ) );
+	gap: 14px;
+	margin-top: 22px;
+}
+
+.wwo-dash-card {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 16px 18px;
+	border: 1px solid var(--wwo-line);
+	border-radius: 14px;
+	background: rgba(255, 255, 255, 0.03);
+	text-decoration: none !important;
+	transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.wwo-dash-card:hover {
+	transform: translateY(-2px);
+	border-color: rgba(240, 209, 173, 0.55);
+	background: rgba(255, 255, 255, 0.06);
+}
+
+.wwo-dash-card__icon {
+	flex: 0 0 auto;
+	width: 44px;
+	height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 12px;
+	background: var(--wwo-secondary, #F0D1AD);
+	color: var(--wwo-accent, #050909);
+}
+
+.wwo-dash-card__icon svg { width: 22px; height: 22px; }
+
+.wwo-dash-card__body {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.wwo-dash-card__title {
+	font-size: 15px;
+	font-weight: 700;
+	color: #fff !important;
+}
+
+.wwo-dash-card__desc {
+	font-size: 12.5px;
+	color: rgba(255, 255, 255, 0.6) !important;
+	line-height: 1.4;
+}
+
+.wwo-dash-card__arrow {
+	flex: 0 0 auto;
+	color: var(--wwo-secondary, #F0D1AD) !important;
+	font-size: 18px;
+	opacity: 0;
+	transform: translateX(-4px);
+	transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.wwo-dash-card:hover .wwo-dash-card__arrow {
+	opacity: 1;
+	transform: translateX(0);
+}
 
 /* Links — branded, readable on dark. */
 .wwo-account-embed a:not(.button):not(.wwo-btn) {

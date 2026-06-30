@@ -200,6 +200,72 @@
 
 /* Account-menu unread badge already styled above (.wwo-badge-count). */
 
+/* =====================================================================
+ * Embedded My Account dashboard on a DARK login page — white text.
+ * (Rendered when the [wwo_login_register] shortcode hands off to the
+ * WooCommerce account dashboard for a logged-in user on a dark page.)
+ * =================================================================== */
+.wwo-account-embed,
+.wwo-account-embed p,
+.wwo-account-embed li,
+.wwo-account-embed span,
+.wwo-account-embed strong,
+.wwo-account-embed h1,
+.wwo-account-embed h2,
+.wwo-account-embed h3,
+.wwo-account-embed address,
+.wwo-account-embed .woocommerce-MyAccount-content,
+.wwo-account-embed .woocommerce-MyAccount-content * {
+	color: #ffffff !important;
+}
+
+/* Links — keep them visible/branded on the dark background. */
+.wwo-account-embed a:not(.button) {
+	color: var(--wwo-secondary, #F0D1AD) !important;
+	text-decoration: none;
+}
+
+.wwo-account-embed a:not(.button):hover {
+	text-decoration: underline;
+}
+
+/* Navigation menu on dark. */
+.wwo-account-embed .woocommerce-MyAccount-navigation ul {
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	border-radius: 12px;
+	overflow: hidden;
+}
+
+.wwo-account-embed .woocommerce-MyAccount-navigation ul li {
+	border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.wwo-account-embed .woocommerce-MyAccount-navigation ul li a {
+	color: #ffffff !important;
+}
+
+.wwo-account-embed .woocommerce-MyAccount-navigation ul li.is-active a,
+.wwo-account-embed .woocommerce-MyAccount-navigation ul li a:hover {
+	background: rgba(255, 255, 255, 0.10);
+	color: #ffffff !important;
+}
+
+/* Inputs in account forms stay readable (dark text on light field). */
+.wwo-account-embed input,
+.wwo-account-embed select,
+.wwo-account-embed textarea {
+	color: #2a2320 !important;
+	background: #f3f3f3;
+}
+
+/* Primary buttons → brand tan with dark text. */
+.wwo-account-embed .button,
+.wwo-account-embed button[type="submit"] {
+	background: var(--wwo-secondary, #F0D1AD) !important;
+	color: var(--wwo-accent, #050909) !important;
+	border: 0 !important;
+}
+
 @media ( max-width: 600px ) {
 	.wwo-offers-table thead { display: none; }
 	.wwo-offers-table, .wwo-offers-table tbody, .wwo-offers-table tr, .wwo-offers-table td { display: block; width: 100%; }

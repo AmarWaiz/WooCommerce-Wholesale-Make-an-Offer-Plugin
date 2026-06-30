@@ -26,6 +26,21 @@
 	box-sizing: border-box;
 }
 
+/*
+ * Boxed variant: self-contained dark card, centered and width-constrained, so
+ * the login form looks good on ANY page (e.g. a plain white page) without
+ * needing a dark Elementor section behind it.
+ * Enable with: [wwo_login_register layout="boxed"]
+ */
+.wwo-auth--dark.wwo-auth--boxed {
+	max-width: 440px;
+	margin: 48px auto;
+	padding: 40px 34px;
+	background: #141110;
+	border-radius: 18px;
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
 /* Transparent container (no white card). */
 .wwo-auth--dark .wwo-auth__card {
 	background: transparent;

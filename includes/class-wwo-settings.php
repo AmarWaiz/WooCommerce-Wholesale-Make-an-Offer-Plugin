@@ -65,6 +65,7 @@ class WWO_Settings {
 		register_setting( self::OPTION_GROUP, 'wwo_rate_limit_count', array( 'sanitize_callback' => 'absint' ) );
 		register_setting( self::OPTION_GROUP, 'wwo_rate_limit_window', array( 'sanitize_callback' => 'absint' ) );
 		register_setting( self::OPTION_GROUP, 'wwo_notify_admin_email', array( 'sanitize_callback' => 'sanitize_email' ) );
+		register_setting( self::OPTION_GROUP, 'wwo_login_page_id', array( 'sanitize_callback' => 'absint' ) );
 		register_setting(
 			self::OPTION_GROUP,
 			'wwo_auto_approve',
@@ -179,6 +180,22 @@ class WWO_Settings {
 						<th scope="row"><?php esc_html_e( 'Notifications email', 'wc-wholesale-offers' ); ?></th>
 						<td><input type="email" name="wwo_notify_admin_email" value="<?php echo esc_attr( get_option( 'wwo_notify_admin_email', get_option( 'admin_email' ) ) ); ?>" class="regular-text" />
 						<p class="description"><?php esc_html_e( 'Where new-offer and approval emails are sent.', 'wc-wholesale-offers' ); ?></p></td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Login / Account page', 'wc-wholesale-offers' ); ?></th>
+						<td>
+							<?php
+							wp_dropdown_pages(
+								array(
+									'name'              => 'wwo_login_page_id',
+									'selected'          => (int) get_option( 'wwo_login_page_id' ),
+									'show_option_none'  => esc_html__( '— Select a page —', 'wc-wholesale-offers' ),
+									'option_none_value' => 0,
+								)
+							);
+							?>
+							<p class="description"><?php esc_html_e( 'The page that contains your [wwo_login_register] form (e.g. your Elementor login page). Used for redirects when a logged-in user opens the login page and as a fallback for messages. Set this to your own page so you can safely delete the auto-created “Account Access” page.', 'wc-wholesale-offers' ); ?></p>
+						</td>
 					</tr>
 				</table>
 

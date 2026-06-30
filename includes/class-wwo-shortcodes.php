@@ -62,7 +62,8 @@ class WWO_Shortcodes {
 	public function login_register( $atts ) {
 		$atts = shortcode_atts(
 			array(
-				'default' => 'login', // login|register.
+				'default' => 'login',       // login|register.
+				'layout'  => 'transparent', // transparent (for dark page sections) | boxed (self-contained dark card).
 			),
 			$atts,
 			'wwo_login_register'
@@ -74,7 +75,9 @@ class WWO_Shortcodes {
 			// bare panel). This is what makes /my-account/ look right when the
 			// page contains this shortcode.
 			if ( function_exists( 'is_account_page' ) && is_account_page() ) {
-				return do_shortcode( '[woocommerce_my_account]' );
+				// Wrap so we can give the embedded dashboard light text on a dark page.
+				wp_enqueue_style( 'wwo-public' );
+				return '<div class="wwo-account-embed">' . do_shortcode( '[woocommerce_my_account]' ) . '</div>';
 			}
 
 			// Otherwise show a styled, friendly panel.
@@ -89,7 +92,8 @@ class WWO_Shortcodes {
 		ob_start();
 		$template = WWO_PLUGIN_DIR . 'templates/login-register.php';
 		if ( file_exists( $template ) ) {
-			$default_tab = ( 'register' === $atts['default'] ) ? 'register' : 'login';
+			$default_tab  = ( 'register' === $atts['default'] ) ? 'register' : 'login';
+			$layout_class = ( 'boxed' === $atts['layout'] ) ? 'wwo-auth--boxed' : '';
 			include $template;
 		}
 		return self::no_autop( ob_get_clean() );

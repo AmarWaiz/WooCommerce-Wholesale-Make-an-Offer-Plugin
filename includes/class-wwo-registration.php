@@ -185,17 +185,21 @@ class WWO_Registration {
 	}
 
 	/**
-	 * Redirect back to the login/registration page with query args, then exit.
+	 * Redirect back to the page the form was submitted from, with query args.
 	 *
-	 * Uses the dedicated login page (which renders the [wwo_login_register]
-	 * shortcode) rather than the HTTP referer, so notices like the wholesale
-	 * "waiting for approval" message are always displayed even when the browser
-	 * strips the Referer header.
+	 * We prefer the submitting page (wp_get_referer(), which also reads the
+	 * hidden _wp_http_referer field that wp_nonce_field() adds — so it survives
+	 * a stripped Referer header). This keeps the user on THEIR login page (e.g.
+	 * a custom Elementor design) so error/notice messages appear in context,
+	 * instead of bouncing them to the plugin's plain auto-created page.
 	 *
 	 * @param array $args Query args.
 	 */
 	private function redirect_with( $args ) {
-		$base = $this->get_login_page_url();
+		$base = wp_get_referer();
+		if ( ! $base ) {
+			$base = $this->get_login_page_url();
+		}
 		wp_safe_redirect( add_query_arg( $args, remove_query_arg( array( 'wwo_error', 'wwo_notice' ), $base ) ) );
 		exit;
 	}

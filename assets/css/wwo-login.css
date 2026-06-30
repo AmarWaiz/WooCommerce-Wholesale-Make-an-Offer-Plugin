@@ -5,6 +5,10 @@
  * (WWO_Settings::output_css_variables) so the admin color customizer applies
  * live. Fallback values keep things sane if that block is ever absent.
  *
+ * NOTE: several rules use !important + the .wwo-auth scope to override theme
+ * button styles (themes commonly colour ALL <button> elements), which would
+ * otherwise turn our tan button / eye icon the theme's accent colour.
+ *
  * @package WC_Wholesale_Offers
  */
 
@@ -12,7 +16,7 @@
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 	color: var(--wwo-primary, #332A28);
 	width: 100%;
-	max-width: 440px;
+	max-width: 430px;
 	margin: 48px auto;
 	padding: 0 16px;
 	box-sizing: border-box;
@@ -37,74 +41,19 @@
 	border: 0;
 }
 
-/* Card */
 .wwo-auth__card {
 	background: var(--wwo-light, #FFFFFF);
 	border-radius: 16px;
-	padding: 36px 32px 32px;
-	box-shadow: 0 18px 50px rgba(5, 9, 9, 0.10);
-}
-
-.wwo-auth__head {
-	text-align: center;
-	margin-bottom: 22px;
-}
-
-.wwo-auth__logo {
-	font-size: 22px;
-	font-weight: 800;
-	letter-spacing: 0.4px;
-	color: var(--wwo-primary, #332A28);
-}
-
-/* Tabs */
-.wwo-tabs {
-	display: flex;
-	gap: 6px;
-	background: #f5f5f5;
-	border-radius: 12px;
-	padding: 5px;
-	margin-bottom: 26px;
-}
-
-.wwo-tab {
-	flex: 1;
-	border: 0;
-	background: transparent;
-	color: var(--wwo-primary, #332A28);
-	padding: 10px 14px;
-	border-radius: 9px;
-	cursor: pointer;
-	font-weight: 600;
-	font-size: 14px;
-	transition: all 0.2s ease;
-}
-
-.wwo-tab.is-active {
-	background: var(--wwo-primary, #332A28);
-	color: var(--wwo-light, #FFFFFF);
+	padding: 8px 4px;
 }
 
 /* Forms */
 .wwo-form {
 	display: none;
-	animation: wwo-fade 0.25s ease;
 }
 
 .wwo-form.is-active {
 	display: block;
-}
-
-@keyframes wwo-fade {
-	from { opacity: 0; transform: translateY(6px); }
-	to   { opacity: 1; transform: translateY(0); }
-}
-
-.wwo-form__title {
-	font-size: 22px;
-	margin: 0 0 22px;
-	color: var(--wwo-primary, #332A28);
-	text-align: center;
 }
 
 /* Fields — light gray, borderless, rounded (matches reference). */
@@ -113,32 +62,36 @@
 	margin-bottom: 16px;
 }
 
-.wwo-field input,
-.wwo-select {
+.wwo-auth .wwo-field input,
+.wwo-auth .wwo-select {
 	width: 100%;
 	background: #f5f5f5;
 	border: 1.5px solid transparent;
 	border-radius: 12px;
-	padding: 16px 18px;
+	padding: 17px 18px;
 	font-size: 15px;
+	line-height: 1.2;
 	color: var(--wwo-primary, #332A28);
 	transition: border-color 0.2s ease, background 0.2s ease;
+	-webkit-appearance: none;
 	appearance: none;
+	box-shadow: none;
 }
 
-.wwo-field input::placeholder {
+.wwo-auth .wwo-field input::placeholder {
 	color: #b8b3ad;
+	opacity: 1;
 }
 
-.wwo-field input:focus,
-.wwo-select:focus {
+.wwo-auth .wwo-field input:focus,
+.wwo-auth .wwo-select:focus {
 	outline: none;
 	background: #fff;
 	border-color: var(--wwo-secondary, #F0D1AD);
 	box-shadow: 0 0 0 3px rgba(240, 209, 173, 0.4);
 }
 
-.wwo-select {
+.wwo-auth .wwo-select {
 	cursor: pointer;
 	background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%20fill%3D'none'%20stroke%3D'%23998f86'%20stroke-width%3D'2'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Cpolyline%20points%3D'6%209%2012%2015%2018%209'%2F%3E%3C%2Fsvg%3E");
 	background-repeat: no-repeat;
@@ -147,28 +100,38 @@
 	padding-right: 44px;
 }
 
-/* Password field with show/hide eye toggle */
+/* Password field with show/hide eye toggle. Override theme button styling. */
 .wwo-field--password input {
-	padding-right: 50px;
+	padding-right: 52px;
 }
 
-.wwo-eye {
+.wwo-auth button.wwo-eye {
 	position: absolute;
 	top: 0;
-	right: 6px;
+	right: 4px;
 	height: 100%;
-	width: 42px;
+	width: 44px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: transparent;
-	border: 0;
-	color: #998f86;
+	background: transparent !important;
+	background-image: none !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	color: #998f86 !important;
 	cursor: pointer;
-	padding: 0;
+	padding: 0 !important;
+	margin: 0;
+	min-height: 0;
 }
 
-.wwo-eye:hover { color: var(--wwo-primary, #332A28); }
+.wwo-auth button.wwo-eye:hover,
+.wwo-auth button.wwo-eye:focus {
+	background: transparent !important;
+	color: var(--wwo-primary, #332A28) !important;
+	box-shadow: none !important;
+	outline: none;
+}
 
 .wwo-field__hint {
 	display: block;
@@ -187,7 +150,7 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin: 4px 2px 22px;
+	margin: 6px 2px 20px;
 	font-size: 13px;
 }
 
@@ -196,75 +159,75 @@
 	align-items: center;
 	gap: 8px;
 	cursor: pointer;
+	color: var(--wwo-primary, #332A28);
 }
 
-.wwo-checkbox input {
-	width: 16px;
-	height: 16px;
+.wwo-auth .wwo-checkbox input {
+	width: 18px;
+	height: 18px;
 	accent-color: var(--wwo-primary, #332A28);
+	margin: 0;
 }
 
-.wwo-link {
+.wwo-auth .wwo-link {
 	color: var(--wwo-primary, #332A28);
 	text-decoration: none;
-	background: none;
-	border: 0;
-	padding: 0;
+	background: transparent !important;
+	border: 0 !important;
+	padding: 0 !important;
+	box-shadow: none !important;
 	cursor: pointer;
 	font-size: inherit;
-	font-weight: 600;
+	font-weight: 700;
+	width: auto !important;
+	min-height: 0;
 }
 
-.wwo-link:hover { text-decoration: underline; }
+.wwo-auth .wwo-link:hover { text-decoration: underline; }
 
 .wwo-form__switch {
-	margin-top: 20px;
+	margin-top: 18px;
 	font-size: 13px;
 	text-align: center;
 	color: rgba(51, 42, 40, 0.7);
 }
 
-/* Buttons */
-.wwo-btn {
-	display: inline-block;
-	border: 0;
-	border-radius: 12px;
-	padding: 15px 24px;
+/* Submit button — tan with dark text (matches reference), overriding theme. */
+.wwo-auth button.wwo-btn--submit {
+	display: block;
+	width: 100%;
+	background: var(--wwo-secondary, #F0D1AD) !important;
+	background-image: none !important;
+	color: var(--wwo-accent, #050909) !important;
+	border: 0 !important;
+	border-radius: 12px !important;
+	padding: 16px 24px !important;
+	margin: 4px 0 0 !important;
 	font-size: 16px;
 	font-weight: 700;
+	line-height: 1.2;
 	cursor: pointer;
-	text-decoration: none;
 	text-align: center;
-	transition: transform 0.05s ease, opacity 0.2s ease, background 0.2s ease;
+	box-shadow: none !important;
+	text-shadow: none !important;
+	transition: opacity 0.2s ease, transform 0.05s ease;
 }
 
-.wwo-btn:active { transform: translateY(1px); }
-.wwo-btn--block { width: 100%; display: block; }
-
-/* Primary submit — tan with dark text, matching the reference. */
-.wwo-btn--submit {
-	background: var(--wwo-secondary, #F0D1AD);
-	color: var(--wwo-accent, #050909);
+.wwo-auth button.wwo-btn--submit:hover {
+	background: var(--wwo-secondary, #F0D1AD) !important;
+	color: var(--wwo-accent, #050909) !important;
+	opacity: 0.9;
 }
 
-.wwo-btn--submit:hover { opacity: 0.9; }
-
-.wwo-btn--primary {
-	background: var(--wwo-primary, #332A28);
-	color: var(--wwo-light, #FFFFFF);
-}
-
-.wwo-btn--ghost {
-	background: transparent;
-	color: var(--wwo-primary, #332A28);
-	border: 1.5px solid var(--wwo-primary, #332A28);
+.wwo-auth button.wwo-btn--submit:active {
+	transform: translateY(1px);
 }
 
 /* Alerts */
 .wwo-alert {
 	padding: 13px 16px;
 	border-radius: 10px;
-	margin-bottom: 20px;
+	margin-bottom: 18px;
 	font-size: 14px;
 }
 
@@ -281,8 +244,28 @@
 	box-shadow: 0 16px 40px rgba(5, 9, 9, 0.12);
 }
 
+.wwo-auth--loggedin .wwo-btn--primary,
+.wwo-auth--loggedin .wwo-btn--ghost {
+	display: inline-block;
+	padding: 12px 22px;
+	border-radius: 10px;
+	text-decoration: none;
+	font-weight: 600;
+	margin: 4px;
+}
+
+.wwo-auth--loggedin .wwo-btn--primary {
+	background: var(--wwo-primary, #332A28) !important;
+	color: var(--wwo-light, #FFFFFF) !important;
+}
+
+.wwo-auth--loggedin .wwo-btn--ghost {
+	background: transparent !important;
+	color: var(--wwo-primary, #332A28) !important;
+	border: 1.5px solid var(--wwo-primary, #332A28) !important;
+}
+
 /* Responsive */
 @media ( max-width: 480px ) {
-	.wwo-auth__card { padding: 28px 20px; }
 	.wwo-grid-2 { grid-template-columns: 1fr; }
 }

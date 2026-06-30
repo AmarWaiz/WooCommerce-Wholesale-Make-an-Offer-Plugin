@@ -19,15 +19,11 @@ $wwo_notice   = isset( $_GET['wwo_notice'] ) ? sanitize_key( wp_unslash( $_GET['
 $wwo_redirect = isset( $_GET['redirect_to'] ) ? esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 // Inline eye icons (show / hide password).
-$wwo_eye      = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
-$wwo_eye_off  = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+$wwo_eye     = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+$wwo_eye_off = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 ?>
 <div class="wwo-auth wwo-auth--minimal" data-default-tab="<?php echo esc_attr( $wwo_default_tab ); ?>">
 	<div class="wwo-auth__card">
-
-		<div class="wwo-auth__head">
-			<div class="wwo-auth__logo"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></div>
-		</div>
 
 		<?php if ( $wwo_error ) : ?>
 			<div class="wwo-alert wwo-alert--error" role="alert"><?php echo esc_html( WWO_Registration::message_for( $wwo_error, 'error' ) ); ?></div>
@@ -36,14 +32,9 @@ $wwo_eye_off  = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" str
 			<div class="wwo-alert wwo-alert--<?php echo 'pending' === $wwo_notice ? 'info' : 'success'; ?>" role="status"><?php echo esc_html( WWO_Registration::message_for( $wwo_notice, 'notice' ) ); ?></div>
 		<?php endif; ?>
 
-		<div class="wwo-tabs" role="tablist">
-			<button type="button" class="wwo-tab" data-tab="login" role="tab"><?php esc_html_e( 'Sign in', 'wc-wholesale-offers' ); ?></button>
-			<button type="button" class="wwo-tab" data-tab="register" role="tab"><?php esc_html_e( 'Create account', 'wc-wholesale-offers' ); ?></button>
-		</div>
-
 		<?php // --- Login form --- ?>
 		<form class="wwo-form wwo-form--login" method="post" data-panel="login">
-			<h1 class="wwo-form__title"><?php esc_html_e( 'Welcome back', 'wc-wholesale-offers' ); ?></h1>
+			<h1 class="wwo-sr-only"><?php esc_html_e( 'Sign in', 'wc-wholesale-offers' ); ?></h1>
 
 			<div class="wwo-field">
 				<label class="wwo-sr-only" for="wwo-login-user"><?php esc_html_e( 'Username or email', 'wc-wholesale-offers' ); ?></label>
@@ -75,7 +66,7 @@ $wwo_eye_off  = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" str
 
 		<?php // --- Register form --- ?>
 		<form class="wwo-form wwo-form--register" method="post" data-panel="register">
-			<h1 class="wwo-form__title"><?php esc_html_e( 'Create your account', 'wc-wholesale-offers' ); ?></h1>
+			<h1 class="wwo-sr-only"><?php esc_html_e( 'Create account', 'wc-wholesale-offers' ); ?></h1>
 
 			<div class="wwo-grid-2">
 				<div class="wwo-field">

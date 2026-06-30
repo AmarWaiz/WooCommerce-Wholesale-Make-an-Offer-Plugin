@@ -209,7 +209,21 @@
 	--wwo-panel: rgba(255, 255, 255, 0.04);
 	color: #fff;
 	font-size: 15px;
-	padding: 48px 0 56px;
+	max-width: 1120px;
+	margin: 0 auto;
+	padding: 40px 20px;
+
+	/* Vertically centre the dashboard in the viewport. */
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+/* Center the nav + content block within the dashboard. */
+.wwo-account-embed .woocommerce {
+	justify-content: center;
+	width: 100%;
 }
 
 .wwo-account-embed,

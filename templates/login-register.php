@@ -13,12 +13,30 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$wwo_default_tab = isset( $default_tab ) ? $default_tab : 'login';
-
 // Surface any messages passed back via query string (sanitised here).
 $wwo_error    = isset( $_GET['wwo_error'] ) ? sanitize_key( wp_unslash( $_GET['wwo_error'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $wwo_notice   = isset( $_GET['wwo_notice'] ) ? sanitize_key( wp_unslash( $_GET['wwo_notice'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $wwo_redirect = isset( $_GET['redirect_to'] ) ? esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+// Password-reset context: a valid link carries ?wwo_reset=1&wwo_key=…&wwo_login=….
+// Params are namespaced (wwo_*) so WooCommerce's account-page reset handler,
+// which hijacks the bare key/login params, never intercepts our link.
+$wwo_is_reset    = ! empty( $_GET['wwo_reset'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$wwo_reset_key   = isset( $_GET['wwo_key'] ) ? sanitize_text_field( wp_unslash( $_GET['wwo_key'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$wwo_reset_login = isset( $_GET['wwo_login'] ) ? sanitize_text_field( wp_unslash( $_GET['wwo_login'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$wwo_tab         = isset( $_GET['wwo_tab'] ) ? sanitize_key( wp_unslash( $_GET['wwo_tab'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+// Decide which panel opens first: a reset link wins, then an explicit ?wwo_tab,
+// then whatever the shortcode requested, else the sign-in form.
+if ( $wwo_is_reset ) {
+	$wwo_default_tab = 'reset';
+} elseif ( 'lost' === $wwo_tab ) {
+	$wwo_default_tab = 'lost';
+} elseif ( isset( $default_tab ) && 'register' === $default_tab ) {
+	$wwo_default_tab = 'register';
+} else {
+	$wwo_default_tab = 'login';
+}
 
 // Inline eye icons (show / hide password).
 $wwo_eye     = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
@@ -60,10 +78,10 @@ $wwo_site = get_bloginfo( 'name' );
 			</div>
 
 			<?php if ( $wwo_error ) : ?>
-				<div class="wwo-alert wwo-alert--error" role="alert"><?php echo esc_html( WWO_Registration::message_for( $wwo_error, 'error' ) ); ?></div>
+				<div class="wwo-alert wwo-alert--error wwo-alert--dismissible" role="alert"><span class="wwo-alert__text"><?php echo esc_html( WWO_Registration::message_for( $wwo_error, 'error' ) ); ?></span><button type="button" class="wwo-alert__close" aria-label="<?php esc_attr_e( 'Dismiss', 'wc-wholesale-offers' ); ?>">&times;</button></div>
 			<?php endif; ?>
 			<?php if ( $wwo_notice ) : ?>
-				<div class="wwo-alert wwo-alert--<?php echo 'pending' === $wwo_notice ? 'info' : 'success'; ?>" role="status"><?php echo esc_html( WWO_Registration::message_for( $wwo_notice, 'notice' ) ); ?></div>
+				<div class="wwo-alert wwo-alert--<?php echo 'pending' === $wwo_notice ? 'info' : 'success'; ?> wwo-alert--dismissible" role="status"><span class="wwo-alert__text"><?php echo esc_html( WWO_Registration::message_for( $wwo_notice, 'notice' ) ); ?></span><button type="button" class="wwo-alert__close" aria-label="<?php esc_attr_e( 'Dismiss', 'wc-wholesale-offers' ); ?>">&times;</button></div>
 			<?php endif; ?>
 
 			<?php // --- Login form --- ?>
@@ -88,7 +106,7 @@ $wwo_site = get_bloginfo( 'name' );
 						<input type="checkbox" name="remember" value="1">
 						<span><?php esc_html_e( 'Remember me', 'wc-wholesale-offers' ); ?></span>
 					</label>
-					<a class="wwo-link" href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php esc_html_e( 'Forgot password?', 'wc-wholesale-offers' ); ?></a>
+					<button type="button" class="wwo-link" data-tab-link="lost"><?php esc_html_e( 'Forgot password?', 'wc-wholesale-offers' ); ?></button>
 				</div>
 
 				<input type="hidden" name="wwo_action" value="login">
@@ -144,6 +162,53 @@ $wwo_site = get_bloginfo( 'name' );
 				<button type="submit" class="wwo-btn wwo-btn--primary"><?php esc_html_e( 'Create account', 'wc-wholesale-offers' ); ?></button>
 
 				<p class="wwo-switch"><?php esc_html_e( 'Already have an account?', 'wc-wholesale-offers' ); ?> <button type="button" class="wwo-link" data-tab-link="login"><?php esc_html_e( 'Sign in', 'wc-wholesale-offers' ); ?></button></p>
+			</form>
+
+			<?php // --- Lost password form (request a reset link) --- ?>
+			<form class="wwo-form wwo-form--lost" method="post" data-panel="lost">
+				<p class="wwo-form__lead"><?php esc_html_e( 'Forgot your password? Enter your email or username and we will send you a link to set a new one.', 'wc-wholesale-offers' ); ?></p>
+
+				<div class="wwo-field">
+					<label class="wwo-label" for="wwo-lost-user"><?php esc_html_e( 'Email or username', 'wc-wholesale-offers' ); ?></label>
+					<input id="wwo-lost-user" type="text" name="user_login" autocomplete="username" placeholder="<?php esc_attr_e( 'name@example.com', 'wc-wholesale-offers' ); ?>" required>
+				</div>
+
+				<input type="hidden" name="wwo_action" value="lost_password">
+				<?php wp_nonce_field( 'wwo_lost_password', 'wwo_lost_nonce' ); ?>
+
+				<button type="submit" class="wwo-btn wwo-btn--primary"><?php esc_html_e( 'Send reset link', 'wc-wholesale-offers' ); ?></button>
+
+				<p class="wwo-switch"><?php esc_html_e( 'Remembered it?', 'wc-wholesale-offers' ); ?> <button type="button" class="wwo-link" data-tab-link="login"><?php esc_html_e( 'Back to sign in', 'wc-wholesale-offers' ); ?></button></p>
+			</form>
+
+			<?php // --- Reset password form (shown when arriving from the email link) --- ?>
+			<form class="wwo-form wwo-form--reset" method="post" data-panel="reset">
+				<p class="wwo-form__lead"><?php esc_html_e( 'Choose a new password for your account.', 'wc-wholesale-offers' ); ?></p>
+
+				<div class="wwo-field">
+					<label class="wwo-label" for="wwo-reset-pass"><?php esc_html_e( 'New password', 'wc-wholesale-offers' ); ?></label>
+					<div class="wwo-input-wrap">
+						<input id="wwo-reset-pass" type="password" name="password" autocomplete="new-password" minlength="8" placeholder="<?php esc_attr_e( 'At least 8 characters', 'wc-wholesale-offers' ); ?>" required>
+						<button type="button" class="wwo-eye" aria-label="<?php esc_attr_e( 'Show password', 'wc-wholesale-offers' ); ?>" data-show="<?php echo esc_attr( $wwo_eye ); ?>" data-hide="<?php echo esc_attr( $wwo_eye_off ); ?>"><?php echo $wwo_eye; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
+					</div>
+				</div>
+
+				<div class="wwo-field">
+					<label class="wwo-label" for="wwo-reset-pass2"><?php esc_html_e( 'Confirm new password', 'wc-wholesale-offers' ); ?></label>
+					<div class="wwo-input-wrap">
+						<input id="wwo-reset-pass2" type="password" name="password_confirm" autocomplete="new-password" minlength="8" placeholder="<?php esc_attr_e( 'Re-enter your new password', 'wc-wholesale-offers' ); ?>" required>
+						<button type="button" class="wwo-eye" aria-label="<?php esc_attr_e( 'Show password', 'wc-wholesale-offers' ); ?>" data-show="<?php echo esc_attr( $wwo_eye ); ?>" data-hide="<?php echo esc_attr( $wwo_eye_off ); ?>"><?php echo $wwo_eye; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
+					</div>
+				</div>
+
+				<input type="hidden" name="wwo_action" value="reset_password">
+				<input type="hidden" name="reset_key" value="<?php echo esc_attr( $wwo_reset_key ); ?>">
+				<input type="hidden" name="reset_login" value="<?php echo esc_attr( $wwo_reset_login ); ?>">
+				<?php wp_nonce_field( 'wwo_reset_password', 'wwo_reset_nonce' ); ?>
+
+				<button type="submit" class="wwo-btn wwo-btn--primary"><?php esc_html_e( 'Set new password', 'wc-wholesale-offers' ); ?></button>
+
+				<p class="wwo-switch"><button type="button" class="wwo-link" data-tab-link="login"><?php esc_html_e( 'Back to sign in', 'wc-wholesale-offers' ); ?></button></p>
 			</form>
 
 		</div>

@@ -26,6 +26,8 @@ class WWO_Notifications {
 		add_action( 'wwo_wholesale_registered', array( $this, 'on_wholesale_registered' ), 10, 2 );
 		add_action( 'wwo_wholesale_approved', array( $this, 'on_wholesale_approved' ), 10, 1 );
 		add_action( 'wwo_wholesale_rejected', array( $this, 'on_wholesale_rejected' ), 10, 1 );
+
+		add_action( 'wwo_password_reset_requested', array( $this, 'on_password_reset_requested' ), 10, 2 );
 	}
 
 	/* ---------------------------------------------------------------------
@@ -226,9 +228,25 @@ class WWO_Notifications {
 		$this->mail_customer(
 			$user_id,
 			__( 'Update on your wholesale application', 'wc-wholesale-offers' ),
-			__( 'Thank you for your interest. Unfortunately your wholesale application was not approved at this time. Please contact us for more information.', 'wc-wholesale-offers' ),
+			__( 'Your wholesaler account request has not been approved. If you believe this is an error or need more information, please contact the administrator.', 'wc-wholesale-offers' ),
 			home_url(),
 			__( 'Visit store', 'wc-wholesale-offers' )
+		);
+	}
+
+	/**
+	 * Password reset requested → email the customer a branded reset link.
+	 *
+	 * @param int    $user_id   User ID.
+	 * @param string $reset_url Fully-formed reset URL back to the login page.
+	 */
+	public function on_password_reset_requested( $user_id, $reset_url ) {
+		$this->mail_customer(
+			$user_id,
+			__( 'Reset your password', 'wc-wholesale-offers' ),
+			__( 'We received a request to reset the password for your account. Click the button below to choose a new password. This link will expire for your security. If you did not request this, you can safely ignore this email — your password will not change.', 'wc-wholesale-offers' ),
+			$reset_url,
+			__( 'Reset my password', 'wc-wholesale-offers' )
 		);
 	}
 
@@ -297,8 +315,12 @@ class WWO_Notifications {
 		}
 
 		$html = sprintf(
-			'<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;border:1px solid #eee;border-radius:10px;overflow:hidden;">
-				<div style="background:%1$s;color:#fff;padding:20px 28px;font-size:18px;font-weight:700;">%2$s</div>
+			'<style>
+				a[x-apple-data-detectors]{color:inherit !important;text-decoration:none !important;}
+				.wwo-email-head a,.wwo-email-head a:link,.wwo-email-head a:visited{color:#ffffff !important;text-decoration:none !important;}
+			</style>
+			<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;border:1px solid #eee;border-radius:10px;overflow:hidden;">
+				<div class="wwo-email-head" style="background:%1$s;color:#fff;padding:20px 28px;font-size:18px;font-weight:700;"><span style="color:#ffffff;text-decoration:none;">%2$s</span></div>
 				<div style="padding:28px;color:#332A28;font-size:15px;line-height:1.6;">
 					<p>%3$s</p>%4$s
 					<p style="color:#888;font-size:12px;margin-top:28px;">%5$s</p>

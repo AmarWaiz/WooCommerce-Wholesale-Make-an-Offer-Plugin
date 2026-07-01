@@ -235,6 +235,26 @@
 	width: 100%;
 }
 
+/* Notices/messages inside the flex row must span the full width (their own
+   row above the nav + content), not sit as a column beside the navigation. */
+.wwo-account-embed .woocommerce > .wwo-alert,
+.wwo-account-embed .woocommerce > .woocommerce-notices-wrapper,
+.wwo-account-embed .woocommerce > .woocommerce-message,
+.wwo-account-embed .woocommerce > .woocommerce-info,
+.wwo-account-embed .woocommerce > .woocommerce-error {
+	flex: 0 0 100%;
+	width: 100%;
+	order: -1;
+	margin: 0 0 4px;
+}
+
+/* Full-width post-auth notice above the dashboard row. */
+.wwo-account-embed .wwo-acc-notice {
+	width: 100%;
+	margin: 0 0 20px;
+	border-radius: 12px;
+}
+
 /* ---- Glass "My Account" banner (compact) ---- */
 .wwo-acc-banner {
 	position: relative;
@@ -495,6 +515,19 @@
 	border: 1px solid var(--wwo-line);
 	border-radius: 12px;
 	padding: 18px 20px;
+}
+
+/*
+ * Address / column titles ("Billing address", "Shipping address"). Some themes
+ * colour these headings with a dark brand colour, which is unreadable on the
+ * dark account panel — force them light with enough specificity to win.
+ */
+.wwo-account-embed .woocommerce-column__title,
+.wwo-account-embed .woocommerce-Address-title h3,
+.wwo-account-embed .woocommerce-Address-title .title,
+.wwo-account-embed h3.woocommerce-column__title {
+	color: #ffffff !important;
+	opacity: 1 !important;
 }
 
 /* Notices / messages. */

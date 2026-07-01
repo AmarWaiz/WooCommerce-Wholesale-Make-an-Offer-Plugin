@@ -36,6 +36,12 @@ class WWO_Registration {
 			case 'register':
 				$this->handle_register();
 				break;
+			case 'lost_password':
+				$this->handle_lost_password();
+				break;
+			case 'reset_password':
+				$this->handle_reset_password();
+				break;
 		}
 	}
 
@@ -56,7 +62,11 @@ class WWO_Registration {
 		$user = wp_signon( $creds, is_ssl() );
 
 		if ( is_wp_error( $user ) ) {
-			$this->redirect_with( array( 'wwo_error' => 'login' ) );
+			// A rejected wholesale account is blocked in wp_authenticate_user with
+			// the 'wwo_rejected' code — surface its specific message rather than the
+			// generic "invalid credentials" one.
+			$code = ( 'wwo_rejected' === $user->get_error_code() ) ? 'rejected' : 'login';
+			$this->redirect_with( array( 'wwo_error' => $code ) );
 		}
 
 		$redirect = $this->get_redirect_target();
@@ -153,6 +163,112 @@ class WWO_Registration {
 	}
 
 	/**
+	 * Step 1 of the reset flow: a customer requests a password reset link.
+	 *
+	 * Generates a WordPress reset key and emails a link that points back to THIS
+	 * login page (with ?wwo_reset=1&key=…&login=…), where handle_reset_password()
+	 * completes the change. Being self-contained means it never depends on
+	 * wp-login.php or a WooCommerce endpoint being reachable.
+	 *
+	 * To avoid leaking which emails have accounts, the response is always the same
+	 * neutral "check your email" notice, whether or not a matching user was found.
+	 */
+	private function handle_lost_password() {
+		if ( ! isset( $_POST['wwo_lost_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wwo_lost_nonce'] ) ), 'wwo_lost_password' ) ) {
+			$this->redirect_with( array( 'wwo_error' => 'nonce', 'wwo_tab' => 'lost' ) );
+		}
+
+		$login = isset( $_POST['user_login'] ) ? sanitize_text_field( wp_unslash( $_POST['user_login'] ) ) : '';
+		if ( '' === $login ) {
+			$this->redirect_with( array( 'wwo_error' => 'lost_empty', 'wwo_tab' => 'lost' ) );
+		}
+
+		$user = is_email( $login ) ? get_user_by( 'email', $login ) : get_user_by( 'login', $login );
+
+		if ( $user ) {
+			$key = get_password_reset_key( $user );
+			if ( ! is_wp_error( $key ) ) {
+				// Namespaced params (wwo_key/wwo_login) — deliberately NOT the bare
+				// key/login names, which WooCommerce's own reset handler intercepts
+				// on the account page and would strip via a redirect.
+				$reset_url = add_query_arg(
+					array(
+						'wwo_reset' => 1,
+						'wwo_key'   => rawurlencode( $key ),
+						'wwo_login' => rawurlencode( $user->user_login ),
+					),
+					$this->get_login_page_url()
+				);
+
+				/**
+				 * Fire the branded reset email (see WWO_Notifications).
+				 */
+				do_action( 'wwo_password_reset_requested', $user->ID, $reset_url );
+			}
+		}
+
+		// Same message regardless, to prevent account enumeration.
+		$this->redirect_with( array( 'wwo_notice' => 'check_email' ) );
+	}
+
+	/**
+	 * Step 2 of the reset flow: the customer sets a new password.
+	 *
+	 * Validates the reset key/login pair via WordPress core, checks the two
+	 * password fields, then commits the change with reset_password() (which also
+	 * invalidates the used key).
+	 */
+	private function handle_reset_password() {
+		if ( ! isset( $_POST['wwo_reset_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wwo_reset_nonce'] ) ), 'wwo_reset_password' ) ) {
+			$this->redirect_with( array( 'wwo_error' => 'nonce' ) );
+		}
+
+		$key     = isset( $_POST['reset_key'] ) ? sanitize_text_field( wp_unslash( $_POST['reset_key'] ) ) : '';
+		$login   = isset( $_POST['reset_login'] ) ? sanitize_text_field( wp_unslash( $_POST['reset_login'] ) ) : '';
+		$pass1   = isset( $_POST['password'] ) ? (string) wp_unslash( $_POST['password'] ) : '';
+		$pass2   = isset( $_POST['password_confirm'] ) ? (string) wp_unslash( $_POST['password_confirm'] ) : '';
+
+		$user = check_password_reset_key( $key, $login );
+		if ( is_wp_error( $user ) ) {
+			// Key is wrong or expired — send them back to request a fresh one.
+			$this->redirect_with( array( 'wwo_error' => 'reset_invalid', 'wwo_tab' => 'lost' ) );
+		}
+
+		if ( strlen( $pass1 ) < 8 ) {
+			$this->redirect_to_reset( $key, $login, 'password' );
+		}
+		if ( $pass1 !== $pass2 ) {
+			$this->redirect_to_reset( $key, $login, 'reset_mismatch' );
+		}
+
+		reset_password( $user, $pass1 );
+
+		$this->redirect_with( array( 'wwo_notice' => 'password_reset' ) );
+	}
+
+	/**
+	 * Redirect back to the reset form (preserving the key/login) with an error, so
+	 * the customer can correct their input without needing a new email.
+	 *
+	 * @param string $key   Reset key.
+	 * @param string $login User login.
+	 * @param string $error Error code for message_for().
+	 */
+	private function redirect_to_reset( $key, $login, $error ) {
+		$url = add_query_arg(
+			array(
+				'wwo_reset' => 1,
+				'wwo_key'   => rawurlencode( $key ),
+				'wwo_login' => rawurlencode( $login ),
+				'wwo_error' => $error,
+			),
+			$this->get_login_page_url()
+		);
+		wp_safe_redirect( $url );
+		exit;
+	}
+
+	/**
 	 * Log a user in programmatically and redirect.
 	 *
 	 * @param int   $user_id User ID.
@@ -200,7 +316,11 @@ class WWO_Registration {
 		if ( ! $base ) {
 			$base = $this->get_login_page_url();
 		}
-		wp_safe_redirect( add_query_arg( $args, remove_query_arg( array( 'wwo_error', 'wwo_notice' ), $base ) ) );
+		// Strip transient params so a stale reset link / message can't linger in the
+		// URL and re-open the wrong panel after we redirect (e.g. show the reset
+		// form again instead of the "password reset" success notice on sign-in).
+		$base = remove_query_arg( array( 'wwo_error', 'wwo_notice', 'wwo_tab', 'wwo_reset', 'wwo_key', 'wwo_login' ), $base );
+		wp_safe_redirect( add_query_arg( $args, $base ) );
 		exit;
 	}
 
@@ -234,12 +354,18 @@ class WWO_Registration {
 			'email_exists' => __( 'An account already exists with that email address.', 'wc-wholesale-offers' ),
 			'password'     => __( 'Password must be at least 8 characters.', 'wc-wholesale-offers' ),
 			'create'       => __( 'We could not create your account. Please try again.', 'wc-wholesale-offers' ),
+			'rejected'     => __( 'Your wholesaler account request has not been approved. If you believe this is an error or need more information, please contact the administrator.', 'wc-wholesale-offers' ),
+			'lost_empty'   => __( 'Please enter your email address or username.', 'wc-wholesale-offers' ),
+			'reset_invalid' => __( 'This password reset link is invalid or has expired. Please request a new one.', 'wc-wholesale-offers' ),
+			'reset_mismatch' => __( 'The two passwords do not match. Please try again.', 'wc-wholesale-offers' ),
 		);
 		$notices = array(
 			'pending'          => __( 'Your account is waiting for admin approval.', 'wc-wholesale-offers' ),
 			'wholesale_active' => __( 'Welcome! Your wholesale account is active.', 'wc-wholesale-offers' ),
 			'registered'       => __( 'Your account has been created. Welcome!', 'wc-wholesale-offers' ),
 			'loggedout'        => __( 'You have been logged out.', 'wc-wholesale-offers' ),
+			'check_email'      => __( 'If an account matches those details, we have emailed a link to reset your password. Please check your inbox (and spam folder).', 'wc-wholesale-offers' ),
+			'password_reset'   => __( 'Your password has been reset. You can now sign in with your new password.', 'wc-wholesale-offers' ),
 		);
 
 		$map = ( 'notice' === $type ) ? $notices : $errors;

@@ -28,8 +28,9 @@ class WWO_Account {
 		// Quick-action cards on the dashboard.
 		add_action( 'woocommerce_account_dashboard', array( $this, 'dashboard_cards' ), 20 );
 
-		// Surface post-auth notices (e.g. "welcome", "waiting for approval").
-		add_action( 'woocommerce_before_account_navigation', array( $this, 'query_notice' ) );
+		// Post-auth notices (e.g. "welcome") are rendered by the shortcode above
+		// the dashboard via self::render_query_notice() so they are full-width
+		// and never dropped into the account flex row as a column.
 	}
 
 	/**
@@ -81,24 +82,23 @@ class WWO_Account {
 	 * left in the URL — otherwise an already-approved customer who refreshes the
 	 * page would keep seeing "waiting for approval".
 	 */
-	public function query_notice() {
+	public static function render_query_notice() {
 		if ( empty( $_GET['wwo_notice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return;
+			return '';
 		}
 		$code = sanitize_key( wp_unslash( $_GET['wwo_notice'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// Never trust a URL param for the pending state.
 		if ( 'pending' === $code ) {
-			return;
+			return '';
 		}
 
 		$message = WWO_Registration::message_for( $code, 'notice' );
-		if ( $message ) {
-			printf(
-				'<div class="wwo-alert wwo-alert--success">%s</div>',
-				esc_html( $message )
-			);
+		if ( ! $message ) {
+			return '';
 		}
+
+		return '<div class="wwo-acc-notice wwo-alert wwo-alert--success">' . esc_html( $message ) . '</div>';
 	}
 
 	/**

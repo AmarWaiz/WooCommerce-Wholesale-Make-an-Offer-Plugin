@@ -52,7 +52,10 @@ class WWO_Shortcodes {
 				. '<span>/</span>' . esc_html__( 'My Account', 'wc-wholesale-offers' ) . '</nav>'
 				. '</div></div>';
 
-			return '<div class="wwo-account-embed' . esc_attr( $boxed ) . '">' . $banner . do_shortcode( '[woocommerce_my_account]' ) . '</div>';
+			// Full-width notice (e.g. "welcome") rendered above the dashboard row.
+			$notice = WWO_Account::render_query_notice();
+
+			return '<div class="wwo-account-embed' . esc_attr( $boxed ) . '">' . $banner . $notice . do_shortcode( '[woocommerce_my_account]' ) . '</div>';
 		}
 
 		// Logged out → login / registration form.

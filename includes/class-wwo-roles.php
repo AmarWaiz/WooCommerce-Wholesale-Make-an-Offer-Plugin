@@ -25,6 +25,45 @@ class WWO_Roles {
 		// Self-heal the role on every load (cheap; only writes when missing).
 		add_action( 'init', array( $this, 'ensure_role_exists' ), 1 );
 		add_action( 'admin_init', array( $this, 'maybe_grant_admin_cap' ) );
+
+		// Block rejected wholesale accounts from authenticating on ANY login path.
+		add_filter( 'wp_authenticate_user', array( $this, 'block_rejected_login' ), 10, 1 );
+	}
+
+	/**
+	 * Prevent a rejected wholesale customer from logging in.
+	 *
+	 * Hooked on `wp_authenticate_user`, which fires after WordPress has validated
+	 * the username/password but before the auth cookie is set. Because every login
+	 * path runs through this filter — the plugin's custom login form (wp_signon()),
+	 * the default wp-login.php form, XML-RPC, etc. — returning a WP_Error here is a
+	 * single, authoritative gate. Pending accounts are deliberately allowed through
+	 * so they can sign in and see the "waiting for approval" banner; only an
+	 * explicit rejection blocks access.
+	 *
+	 * @param WP_User|WP_Error $user Authenticated user, or an error from an earlier filter.
+	 * @return WP_User|WP_Error
+	 */
+	public function block_rejected_login( $user ) {
+		if ( is_wp_error( $user ) ) {
+			return $user;
+		}
+
+		// Never lock out a site manager. An admin/shop-manager account can also
+		// carry the wholesale role (e.g. left over from testing), and an approval
+		// gate must never bar someone who can run the store.
+		if ( user_can( $user, 'manage_options' ) || user_can( $user, 'manage_wwo_offers' ) ) {
+			return $user;
+		}
+
+		if ( self::is_wholesale( $user->ID ) && self::STATUS_REJECTED === self::get_status( $user->ID ) ) {
+			return new WP_Error(
+				'wwo_rejected',
+				__( 'Your wholesaler account request has not been approved. If you believe this is an error or need more information, please contact the administrator.', 'wc-wholesale-offers' )
+			);
+		}
+
+		return $user;
 	}
 
 	/**

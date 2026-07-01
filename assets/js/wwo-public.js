@@ -8,7 +8,7 @@
 
 	// Bump this when editing this file so you can confirm in the browser console
 	// that the latest version is actually loaded (not a cached/combined copy).
-	var WWO_JS_VERSION = '1.3.0';
+	var WWO_JS_VERSION = '1.4.0';
 	if ( window.console && window.console.info ) {
 		window.console.info( '[WWO] wwo-public.js loaded, v' + WWO_JS_VERSION );
 	}
@@ -247,6 +247,11 @@
 		root.find( '.wwo-form[data-panel="' + tab + '"]' ).addClass( 'is-active' );
 	}
 
+	// Dismiss a flash alert when its close (×) button is clicked.
+	$( document ).on( 'click', '.wwo-alert__close', function () {
+		$( this ).closest( '.wwo-alert' ).remove();
+	} );
+
 	$( document ).on( 'click', '.wwo-tab, [data-tab-link]', function ( e ) {
 		e.preventDefault();
 		var root = $( this ).closest( '.wwo-auth' );
@@ -333,7 +338,31 @@
 		}
 	} );
 
+	/**
+	 * Strip one-time "flash" params (wwo_error / wwo_notice) from the URL after the
+	 * alert has rendered, so refreshing the page does not re-show a stale message.
+	 * The reset-context params (wwo_reset / wwo_key / wwo_login) are left in place
+	 * so the reset panel survives a refresh.
+	 */
+	function cleanFlashParams() {
+		if ( ! window.history || ! window.history.replaceState || ! window.URLSearchParams ) {
+			return;
+		}
+		var params = new window.URLSearchParams( window.location.search );
+		if ( ! params.has( 'wwo_error' ) && ! params.has( 'wwo_notice' ) && ! params.has( 'wwo_tab' ) ) {
+			return;
+		}
+		params.delete( 'wwo_error' );
+		params.delete( 'wwo_notice' );
+		params.delete( 'wwo_tab' );
+		var qs = params.toString();
+		var newUrl = window.location.pathname + ( qs ? '?' + qs : '' ) + window.location.hash;
+		window.history.replaceState( null, '', newUrl );
+	}
+
 	$( function () {
+		cleanFlashParams();
+
 		// Initialise the auth tabs to their default.
 		$( '.wwo-auth' ).each( function () {
 			activateTab( $( this ), $( this ).data( 'defaultTab' ) || 'login' );

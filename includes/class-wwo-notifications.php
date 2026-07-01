@@ -28,6 +28,28 @@ class WWO_Notifications {
 		add_action( 'wwo_wholesale_rejected', array( $this, 'on_wholesale_rejected' ), 10, 1 );
 
 		add_action( 'wwo_password_reset_requested', array( $this, 'on_password_reset_requested' ), 10, 2 );
+
+		// Stop WordPress from emailing the site admin a "Password changed for user
+		// X" notice every time a customer/wholesale user resets their password.
+		// These are personal, per-user notifications and should not reach the admin
+		// inbox. Runs before core's own handler (priority 10) so it can unhook it.
+		add_action( 'after_password_reset', array( $this, 'suppress_admin_password_notification' ), 1, 1 );
+	}
+
+	/**
+	 * Remove the core admin "password changed" email for non-admin accounts.
+	 *
+	 * WordPress hooks wp_password_change_notification() onto after_password_reset
+	 * to email the site admin whenever any user resets their password. For ordinary
+	 * customers and wholesale accounts that is unwanted noise, so we unhook it here
+	 * for those users. Administrators still get their own change notification.
+	 *
+	 * @param WP_User $user The user whose password was reset.
+	 */
+	public function suppress_admin_password_notification( $user ) {
+		if ( $user instanceof WP_User && ! user_can( $user, 'manage_options' ) ) {
+			remove_action( 'after_password_reset', 'wp_password_change_notification' );
+		}
 	}
 
 	/* ---------------------------------------------------------------------
@@ -106,19 +128,10 @@ class WWO_Notifications {
 		);
 		$this->mail_customer( $offer->user_id, $cust_subject, $cust_body, $this->product_url( $offer ), __( 'Buy now', 'wc-wholesale-offers' ) );
 
-		// Admin record.
-		$this->mail_admin(
-			__( 'An offer was accepted', 'wc-wholesale-offers' ),
-			sprintf(
-				/* translators: 1: customer, 2: product, 3: price */
-				__( 'Offer accepted (%3$s) for %1$s on "%2$s".', 'wc-wholesale-offers' ),
-				$this->customer_name( $offer->user_id ),
-				$this->product_name( $offer ),
-				$this->price( $offer->agreed_price )
-			),
-			$this->admin_offer_url( $offer->id ),
-			__( 'View offer', 'wc-wholesale-offers' )
-		);
+		// Note: we intentionally do NOT email the admin here. An accepted offer is
+		// a customer-facing, account-specific notification; the admin can review
+		// accepted offers any time from the Offers dashboard. This keeps the admin
+		// inbox free of per-customer status emails.
 	}
 
 	/**

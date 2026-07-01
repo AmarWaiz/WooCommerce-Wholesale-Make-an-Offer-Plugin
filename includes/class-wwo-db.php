@@ -267,6 +267,41 @@ class WWO_DB {
 	}
 
 	/**
+	 * Permanently delete an offer and its history rows.
+	 *
+	 * @param int $offer_id Offer ID.
+	 * @return bool True if the offer row was removed.
+	 */
+	public static function delete_offer( $offer_id ) {
+		global $wpdb;
+		$offer_id = absint( $offer_id );
+		if ( ! $offer_id ) {
+			return false;
+		}
+
+		// Remove child history first to avoid orphan rows.
+		$wpdb->delete( self::history_table(), array( 'offer_id' => $offer_id ), array( '%d' ) );
+
+		return false !== $wpdb->delete( self::offers_table(), array( 'id' => $offer_id ), array( '%d' ) );
+	}
+
+	/**
+	 * Permanently delete a batch of offers (and their history).
+	 *
+	 * @param int[] $offer_ids Offer IDs.
+	 * @return int Number of offers deleted.
+	 */
+	public static function delete_offers( array $offer_ids ) {
+		$deleted = 0;
+		foreach ( $offer_ids as $id ) {
+			if ( self::delete_offer( $id ) ) {
+				$deleted++;
+			}
+		}
+		return $deleted;
+	}
+
+	/**
 	 * Get offers belonging to a specific user (for My Account).
 	 *
 	 * @param int $user_id User ID.

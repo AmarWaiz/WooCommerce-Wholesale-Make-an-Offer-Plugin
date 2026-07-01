@@ -423,12 +423,13 @@ class WWO_Offers {
 		if ( $price <= 0 ) {
 			return new WP_Error( 'wwo_invalid_price', __( 'Please enter a valid price greater than zero.', 'wc-wholesale-offers' ) );
 		}
-		// Disallow proposals that exceed the list price by more than a small tolerance.
-		if ( $price > $original ) {
+		// The offer must be strictly LESS than the list price — an offer equal to
+		// (or above) the list price defeats the purpose of negotiating a discount.
+		if ( $price >= $original ) {
 			return new WP_Error(
 				'wwo_too_high',
-				/* translators: %s: formatted maximum price */
-				sprintf( __( 'Your price cannot exceed the list price of %s.', 'wc-wholesale-offers' ), wp_strip_all_tags( wc_price( $original ) ) )
+				/* translators: %s: formatted list price */
+				sprintf( __( 'The offer amount must be less than the list price (%s).', 'wc-wholesale-offers' ), wp_strip_all_tags( wc_price( $original ) ) )
 			);
 		}
 		return true;

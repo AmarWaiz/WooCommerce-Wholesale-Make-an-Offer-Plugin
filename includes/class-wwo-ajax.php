@@ -27,6 +27,8 @@ class WWO_Ajax {
 		// Admin actions.
 		add_action( 'wp_ajax_wwo_admin_offer_action', array( $this, 'admin_offer_action' ) );
 		add_action( 'wp_ajax_wwo_admin_approval', array( $this, 'admin_approval' ) );
+		add_action( 'wp_ajax_wwo_admin_delete_offers', array( $this, 'admin_delete_offers' ) );
+		add_action( 'wp_ajax_wwo_admin_delete_users', array( $this, 'admin_delete_users' ) );
 
 		// Issues a fresh nonce to the current user (survives page caching).
 		add_action( 'wp_ajax_wwo_refresh_nonce', array( $this, 'refresh_nonce' ) );
@@ -41,6 +43,8 @@ class WWO_Ajax {
 			'wwo_clear_unread',
 			'wwo_admin_offer_action',
 			'wwo_admin_approval',
+			'wwo_admin_delete_offers',
+			'wwo_admin_delete_users',
 			'wwo_refresh_nonce',
 		);
 		foreach ( $actions as $a ) {
@@ -335,5 +339,115 @@ class WWO_Ajax {
 				'status'  => $label,
 			)
 		);
+	}
+
+	/**
+	 * Delete one or more offers (individual or bulk).
+	 *
+	 * Accepts an `ids` array (or a single `offer_id`) of offer IDs.
+	 */
+	public function admin_delete_offers() {
+		check_ajax_referer( 'wwo_admin', 'nonce' );
+
+		if ( ! current_user_can( 'manage_wwo_offers' ) ) {
+			$this->err( array( 'message' => __( 'Permission denied.', 'wc-wholesale-offers' ) ), 403 );
+		}
+
+		$ids = $this->collect_ids();
+		if ( empty( $ids ) ) {
+			$this->err( array( 'message' => __( 'No items selected.', 'wc-wholesale-offers' ) ) );
+		}
+
+		$deleted = WWO_DB::delete_offers( $ids );
+
+		$this->ok(
+			array(
+				'deleted' => $deleted,
+				'message' => sprintf(
+					/* translators: %d: number of offers deleted. */
+					_n( '%d offer deleted.', '%d offers deleted.', $deleted, 'wc-wholesale-offers' ),
+					$deleted
+				),
+			)
+		);
+	}
+
+	/**
+	 * Delete one or more wholesale customer accounts (individual or bulk).
+	 *
+	 * Accepts an `ids` array (or a single `user_id`) of user IDs. Refuses to
+	 * delete anyone who can manage the store, and only touches wholesale-role
+	 * accounts so no unrelated user can be removed from here.
+	 */
+	public function admin_delete_users() {
+		check_ajax_referer( 'wwo_admin', 'nonce' );
+
+		if ( ! current_user_can( 'manage_wwo_offers' ) || ! current_user_can( 'delete_users' ) ) {
+			$this->err( array( 'message' => __( 'Permission denied.', 'wc-wholesale-offers' ) ), 403 );
+		}
+
+		$ids = $this->collect_ids();
+		if ( empty( $ids ) ) {
+			$this->err( array( 'message' => __( 'No items selected.', 'wc-wholesale-offers' ) ) );
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/user.php';
+
+		$current = get_current_user_id();
+		$deleted = 0;
+
+		foreach ( $ids as $user_id ) {
+			if ( $user_id === $current ) {
+				continue; // Never let an admin delete themselves from here.
+			}
+
+			$user = get_userdata( $user_id );
+			// Only ever delete genuine wholesale accounts that cannot manage the store.
+			if ( ! $user
+				|| ! in_array( WWO_Roles::ROLE, (array) $user->roles, true )
+				|| user_can( $user, 'manage_options' )
+				|| user_can( $user, 'manage_wwo_offers' ) ) {
+				continue;
+			}
+
+			if ( wp_delete_user( $user_id ) ) {
+				$deleted++;
+			}
+		}
+
+		$this->ok(
+			array(
+				'deleted' => $deleted,
+				'message' => sprintf(
+					/* translators: %d: number of accounts deleted. */
+					_n( '%d account deleted.', '%d accounts deleted.', $deleted, 'wc-wholesale-offers' ),
+					$deleted
+				),
+			)
+		);
+	}
+
+	/**
+	 * Read a list of positive integer IDs from the request.
+	 *
+	 * Accepts either an `ids` array or single `offer_id` / `user_id` scalar,
+	 * so the same endpoints serve both individual and bulk deletes.
+	 *
+	 * @return int[] Unique, positive IDs.
+	 */
+	private function collect_ids() {
+		$raw = array();
+
+		if ( isset( $_POST['ids'] ) && is_array( $_POST['ids'] ) ) {
+			$raw = wp_unslash( $_POST['ids'] );
+		} elseif ( isset( $_POST['offer_id'] ) ) {
+			$raw = array( wp_unslash( $_POST['offer_id'] ) );
+		} elseif ( isset( $_POST['user_id'] ) ) {
+			$raw = array( wp_unslash( $_POST['user_id'] ) );
+		}
+
+		$ids = array_filter( array_map( 'absint', (array) $raw ) );
+
+		return array_values( array_unique( $ids ) );
 	}
 }

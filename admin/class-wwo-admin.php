@@ -80,6 +80,11 @@ class WWO_Admin {
 						'confirmReject' => __( 'Reject this offer?', 'wc-wholesale-offers' ),
 						'confirmApprove'=> __( 'Approve this wholesale account?', 'wc-wholesale-offers' ),
 						'confirmDeny'   => __( 'Reject this wholesale account?', 'wc-wholesale-offers' ),
+						'confirmDeleteOffer'  => __( 'Permanently delete this offer? This cannot be undone.', 'wc-wholesale-offers' ),
+						'confirmDeleteUser'   => __( 'Permanently delete this wholesale account? This cannot be undone.', 'wc-wholesale-offers' ),
+						'confirmBulkOffers'   => __( 'Permanently delete the selected offers? This cannot be undone.', 'wc-wholesale-offers' ),
+						'confirmBulkUsers'    => __( 'Permanently delete the selected wholesale accounts? This cannot be undone.', 'wc-wholesale-offers' ),
+						'selectedLabel'       => __( '%d selected', 'wc-wholesale-offers' ),
 						'error'         => __( 'Something went wrong. Please try again.', 'wc-wholesale-offers' ),
 					),
 				)
@@ -104,17 +109,54 @@ class WWO_Admin {
 		$pending_offers = WWO_DB::query_offers( array( 'status' => 'pending', 'per_page' => 1 ) );
 		$countered      = WWO_DB::query_offers( array( 'status' => 'countered', 'per_page' => 1 ) );
 		$accepted       = WWO_DB::query_offers( array( 'status' => 'accepted', 'per_page' => 1 ) );
+		$total_offers   = WWO_DB::query_offers( array( 'per_page' => 1 ) );
 		$pending_users  = count( $this->get_pending_wholesale_users() );
 		?>
 		<div class="wrap wwo-admin-wrap">
-			<h1><?php esc_html_e( 'Wholesale & Offers', 'wc-wholesale-offers' ); ?></h1>
+			<div class="wwo-page-head">
+				<div class="wwo-page-head__title">
+					<span class="dashicons dashicons-tag"></span>
+					<div>
+						<h1><?php esc_html_e( 'Wholesale & Offers', 'wc-wholesale-offers' ); ?></h1>
+						<p class="wwo-page-head__sub"><?php esc_html_e( 'Overview of price negotiations and wholesale account requests.', 'wc-wholesale-offers' ); ?></p>
+					</div>
+				</div>
+			</div>
+
 			<div class="wwo-cards">
 				<?php
-				$this->stat_card( __( 'Pending offers', 'wc-wholesale-offers' ), $pending_offers['total'], 'wwo-offers&status=pending' );
-				$this->stat_card( __( 'In negotiation', 'wc-wholesale-offers' ), $countered['total'], 'wwo-offers&status=countered' );
-				$this->stat_card( __( 'Accepted', 'wc-wholesale-offers' ), $accepted['total'], 'wwo-offers&status=accepted' );
-				$this->stat_card( __( 'Wholesale approvals', 'wc-wholesale-offers' ), $pending_users, 'wwo-approvals' );
+				$this->stat_card( __( 'Pending offers', 'wc-wholesale-offers' ), $pending_offers['total'], 'wwo-offers&status=pending', 'dashicons-clock', 'pending' );
+				$this->stat_card( __( 'In negotiation', 'wc-wholesale-offers' ), $countered['total'], 'wwo-offers&status=countered', 'dashicons-randomize', 'countered' );
+				$this->stat_card( __( 'Accepted', 'wc-wholesale-offers' ), $accepted['total'], 'wwo-offers&status=accepted', 'dashicons-yes-alt', 'accepted' );
+				$this->stat_card( __( 'Wholesale approvals', 'wc-wholesale-offers' ), $pending_users, 'wwo-approvals', 'dashicons-groups', 'approvals' );
 				?>
+			</div>
+
+			<div class="wwo-panel wwo-quick-links">
+				<h2><?php esc_html_e( 'Quick actions', 'wc-wholesale-offers' ); ?></h2>
+				<div class="wwo-quick-links__grid">
+					<a class="wwo-quick-link" href="<?php echo esc_url( admin_url( 'admin.php?page=wwo-offers' ) ); ?>">
+						<span class="dashicons dashicons-cart"></span>
+						<span>
+							<strong><?php esc_html_e( 'Manage offers', 'wc-wholesale-offers' ); ?></strong>
+							<?php printf( esc_html__( '%s total in the system', 'wc-wholesale-offers' ), '<em>' . esc_html( number_format_i18n( $total_offers['total'] ) ) . '</em>' ); // phpcs:ignore ?>
+						</span>
+					</a>
+					<a class="wwo-quick-link" href="<?php echo esc_url( admin_url( 'admin.php?page=wwo-approvals' ) ); ?>">
+						<span class="dashicons dashicons-id"></span>
+						<span>
+							<strong><?php esc_html_e( 'Review approvals', 'wc-wholesale-offers' ); ?></strong>
+							<?php esc_html_e( 'Approve or reject wholesale accounts', 'wc-wholesale-offers' ); ?>
+						</span>
+					</a>
+					<a class="wwo-quick-link" href="<?php echo esc_url( admin_url( 'admin.php?page=wwo-settings' ) ); ?>">
+						<span class="dashicons dashicons-admin-settings"></span>
+						<span>
+							<strong><?php esc_html_e( 'Settings', 'wc-wholesale-offers' ); ?></strong>
+							<?php esc_html_e( 'Colors, negotiation rules & accounts', 'wc-wholesale-offers' ); ?>
+						</span>
+					</a>
+				</div>
 			</div>
 		</div>
 		<?php
@@ -122,13 +164,21 @@ class WWO_Admin {
 
 	/**
 	 * Output a single stat card.
+	 *
+	 * @param string $label Card label.
+	 * @param int    $value Count to show.
+	 * @param string $page  Target admin page (query fragment).
+	 * @param string $icon  Dashicon class.
+	 * @param string $tone  Tone modifier for coloring.
 	 */
-	private function stat_card( $label, $value, $page ) {
+	private function stat_card( $label, $value, $page, $icon = 'dashicons-chart-bar', $tone = 'default' ) {
 		printf(
-			'<a class="wwo-card-stat" href="%1$s"><span class="wwo-card-stat__num">%2$s</span><span class="wwo-card-stat__label">%3$s</span></a>',
+			'<a class="wwo-card-stat wwo-card-stat--%5$s" href="%1$s"><span class="wwo-card-stat__icon"><span class="dashicons %4$s"></span></span><span class="wwo-card-stat__body"><span class="wwo-card-stat__num">%2$s</span><span class="wwo-card-stat__label">%3$s</span></span></a>',
 			esc_url( admin_url( 'admin.php?page=' . $page ) ),
 			esc_html( number_format_i18n( $value ) ),
-			esc_html( $label )
+			esc_html( $label ),
+			esc_attr( $icon ),
+			esc_attr( $tone )
 		);
 	}
 
@@ -145,17 +195,47 @@ class WWO_Admin {
 		$table->prepare_items();
 		?>
 		<div class="wrap wwo-admin-wrap">
-			<h1><?php esc_html_e( 'Offers', 'wc-wholesale-offers' ); ?></h1>
-			<form method="get">
-				<input type="hidden" name="page" value="wwo-offers" />
-				<?php
-				$table->views();
-				$table->search_box( __( 'Search', 'wc-wholesale-offers' ), 'wwo-offer' );
-				$table->display();
-				?>
-			</form>
+			<div class="wwo-page-head">
+				<div class="wwo-page-head__title">
+					<span class="dashicons dashicons-cart"></span>
+					<div>
+						<h1><?php esc_html_e( 'Offers', 'wc-wholesale-offers' ); ?></h1>
+						<p class="wwo-page-head__sub"><?php esc_html_e( 'Review, respond to, and manage customer price offers.', 'wc-wholesale-offers' ); ?></p>
+					</div>
+				</div>
+			</div>
+
+			<div class="wwo-panel wwo-table-panel">
+				<form method="get">
+					<input type="hidden" name="page" value="wwo-offers" />
+					<?php $table->views(); ?>
+					<div class="wwo-table-toolbar">
+						<?php $this->bulk_bar( 'offer' ); ?>
+						<?php $table->search_box( __( 'Search', 'wc-wholesale-offers' ), 'wwo-offer' ); ?>
+					</div>
+					<?php $table->display(); ?>
+				</form>
+			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Render the bulk-delete toolbar shared by the list tables.
+	 *
+	 * @param string $type 'offer' or 'user' — decides which delete endpoint JS calls.
+	 */
+	private function bulk_bar( $type ) {
+		printf(
+			'<div class="wwo-bulk-bar" data-type="%1$s">
+				<button type="button" class="button wwo-bulk-delete" disabled>
+					<span class="dashicons dashicons-trash"></span> %2$s
+				</button>
+				<span class="wwo-bulk-count" aria-live="polite"></span>
+			</div>',
+			esc_attr( $type ),
+			esc_html__( 'Delete selected', 'wc-wholesale-offers' )
+		);
 	}
 
 	/**
@@ -171,12 +251,26 @@ class WWO_Admin {
 		$table->prepare_items();
 		?>
 		<div class="wrap wwo-admin-wrap">
-			<h1><?php esc_html_e( 'Wholesale Approvals', 'wc-wholesale-offers' ); ?></h1>
-			<p class="description"><?php esc_html_e( 'Approve or reject pending wholesale customer accounts.', 'wc-wholesale-offers' ); ?></p>
-			<form method="get">
-				<input type="hidden" name="page" value="wwo-approvals" />
-				<?php $table->display(); ?>
-			</form>
+			<div class="wwo-page-head">
+				<div class="wwo-page-head__title">
+					<span class="dashicons dashicons-groups"></span>
+					<div>
+						<h1><?php esc_html_e( 'Wholesale Approvals', 'wc-wholesale-offers' ); ?></h1>
+						<p class="wwo-page-head__sub"><?php esc_html_e( 'Approve or reject pending wholesale customer accounts.', 'wc-wholesale-offers' ); ?></p>
+					</div>
+				</div>
+			</div>
+
+			<div class="wwo-panel wwo-table-panel">
+				<form method="get">
+					<input type="hidden" name="page" value="wwo-approvals" />
+					<?php $table->display_views(); ?>
+					<div class="wwo-table-toolbar">
+						<?php $this->bulk_bar( 'user' ); ?>
+					</div>
+					<?php $table->display_table_only(); ?>
+				</form>
+			</div>
 		</div>
 		<?php
 	}

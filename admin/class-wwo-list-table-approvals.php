@@ -36,6 +36,7 @@ class WWO_List_Table_Approvals extends WP_List_Table {
 	 */
 	public function get_columns() {
 		return array(
+			'cb'         => '<input type="checkbox" />',
 			'name'       => __( 'Name', 'wc-wholesale-offers' ),
 			'email'      => __( 'Email', 'wc-wholesale-offers' ),
 			'registered' => __( 'Registered', 'wc-wholesale-offers' ),
@@ -101,6 +102,17 @@ class WWO_List_Table_Approvals extends WP_List_Table {
 		return $views;
 	}
 
+	/**
+	 * Leading checkbox for bulk selection.
+	 */
+	public function column_cb( $user ) {
+		return sprintf(
+			'<input type="checkbox" class="wwo-cb" value="%d" aria-label="%s" />',
+			absint( $user->ID ),
+			esc_attr__( 'Select account', 'wc-wholesale-offers' )
+		);
+	}
+
 	public function column_name( $user ) {
 		return sprintf( '<a href="%s">%s</a>', esc_url( get_edit_user_link( $user->ID ) ), esc_html( $user->display_name ) );
 	}
@@ -127,8 +139,9 @@ class WWO_List_Table_Approvals extends WP_List_Table {
 			echo '<button type="button" class="button button-primary wwo-approve" data-action="approve">' . esc_html__( 'Approve', 'wc-wholesale-offers' ) . '</button> ';
 		}
 		if ( WWO_Roles::STATUS_REJECTED !== $status ) {
-			echo '<button type="button" class="button wwo-approve wwo-act--danger" data-action="reject">' . esc_html__( 'Reject', 'wc-wholesale-offers' ) . '</button>';
+			echo '<button type="button" class="button wwo-approve wwo-act--danger" data-action="reject">' . esc_html__( 'Reject', 'wc-wholesale-offers' ) . '</button> ';
 		}
+		echo '<button type="button" class="button wwo-delete-user wwo-btn-icon-danger" title="' . esc_attr__( 'Delete account permanently', 'wc-wholesale-offers' ) . '"><span class="dashicons dashicons-trash"></span> ' . esc_html__( 'Delete', 'wc-wholesale-offers' ) . '</button>';
 		echo '</div>';
 		return ob_get_clean();
 	}
@@ -153,6 +166,13 @@ class WWO_List_Table_Approvals extends WP_List_Table {
 	 */
 	public function display() {
 		$this->display_views();
+		parent::display();
+	}
+
+	/**
+	 * Render just the table (views rendered separately by the page controller).
+	 */
+	public function display_table_only() {
 		parent::display();
 	}
 }

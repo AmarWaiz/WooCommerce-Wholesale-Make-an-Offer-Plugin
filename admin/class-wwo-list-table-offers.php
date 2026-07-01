@@ -36,6 +36,7 @@ class WWO_List_Table_Offers extends WP_List_Table {
 	 */
 	public function get_columns() {
 		return array(
+			'cb'             => '<input type="checkbox" />',
 			'id'             => __( 'ID', 'wc-wholesale-offers' ),
 			'product'        => __( 'Product', 'wc-wholesale-offers' ),
 			'customer'       => __( 'Customer', 'wc-wholesale-offers' ),
@@ -124,6 +125,17 @@ class WWO_List_Table_Offers extends WP_List_Table {
 	 * Column renderers.
 	 * ------------------------------------------------------------------- */
 
+	/**
+	 * Leading checkbox for bulk selection.
+	 */
+	public function column_cb( $item ) {
+		return sprintf(
+			'<input type="checkbox" class="wwo-cb" value="%d" aria-label="%s" />',
+			absint( $item->id ),
+			esc_attr__( 'Select offer', 'wc-wholesale-offers' )
+		);
+	}
+
 	public function column_id( $item ) {
 		return '#' . absint( $item->id );
 	}
@@ -192,10 +204,10 @@ class WWO_List_Table_Offers extends WP_List_Table {
 			if ( $can_counter ) {
 				echo '<button type="button" class="button wwo-act" data-action="counter">' . esc_html__( 'Counter', 'wc-wholesale-offers' ) . '</button> ';
 			}
-			echo '<button type="button" class="button wwo-act wwo-act--danger" data-action="reject">' . esc_html__( 'Reject', 'wc-wholesale-offers' ) . '</button>';
-		} else {
-			echo '<span class="description">' . esc_html__( '—', 'wc-wholesale-offers' ) . '</span>';
+			echo '<button type="button" class="button wwo-act wwo-act--danger" data-action="reject">' . esc_html__( 'Reject', 'wc-wholesale-offers' ) . '</button> ';
 		}
+
+		echo '<button type="button" class="button wwo-delete-offer wwo-btn-icon-danger" title="' . esc_attr__( 'Delete permanently', 'wc-wholesale-offers' ) . '"><span class="dashicons dashicons-trash"></span> ' . esc_html__( 'Delete', 'wc-wholesale-offers' ) . '</button>';
 
 		echo '</div>';
 		return ob_get_clean();

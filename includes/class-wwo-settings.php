@@ -114,12 +114,21 @@ class WWO_Settings {
 		}
 		?>
 		<div class="wrap wwo-admin-wrap">
-			<h1><?php esc_html_e( 'Wholesale & Offers — Settings', 'wc-wholesale-offers' ); ?></h1>
+			<div class="wwo-page-head">
+				<div class="wwo-page-head__title">
+					<span class="dashicons dashicons-admin-settings"></span>
+					<div>
+						<h1><?php esc_html_e( 'Settings', 'wc-wholesale-offers' ); ?></h1>
+						<p class="wwo-page-head__sub"><?php esc_html_e( 'Configure brand colors, negotiation behaviour, and wholesale accounts.', 'wc-wholesale-offers' ); ?></p>
+					</div>
+				</div>
+			</div>
 
 			<form method="post" action="options.php" class="wwo-settings-form">
 				<?php settings_fields( self::OPTION_GROUP ); ?>
 
-				<h2 class="title"><?php esc_html_e( 'Brand colors', 'wc-wholesale-offers' ); ?></h2>
+				<div class="wwo-panel">
+				<h2 class="title"><span class="dashicons dashicons-art"></span> <?php esc_html_e( 'Brand colors', 'wc-wholesale-offers' ); ?></h2>
 				<p class="description"><?php esc_html_e( 'Change the plugin colors. The preview updates live; click Save to apply across the site.', 'wc-wholesale-offers' ); ?></p>
 				<table class="form-table" role="presentation">
 					<?php
@@ -145,8 +154,10 @@ class WWO_Settings {
 						</tr>
 					<?php endforeach; ?>
 				</table>
+				</div>
 
-				<h2 class="title"><?php esc_html_e( 'Negotiation behaviour', 'wc-wholesale-offers' ); ?></h2>
+				<div class="wwo-panel">
+				<h2 class="title"><span class="dashicons dashicons-randomize"></span> <?php esc_html_e( 'Negotiation behaviour', 'wc-wholesale-offers' ); ?></h2>
 				<table class="form-table" role="presentation">
 					<tr>
 						<th scope="row"><?php esc_html_e( 'Maximum negotiation rounds', 'wc-wholesale-offers' ); ?></th>
@@ -169,8 +180,10 @@ class WWO_Settings {
 						</td>
 					</tr>
 				</table>
+				</div>
 
-				<h2 class="title"><?php esc_html_e( 'Wholesale accounts', 'wc-wholesale-offers' ); ?></h2>
+				<div class="wwo-panel">
+				<h2 class="title"><span class="dashicons dashicons-groups"></span> <?php esc_html_e( 'Wholesale accounts', 'wc-wholesale-offers' ); ?></h2>
 				<table class="form-table" role="presentation">
 					<tr>
 						<th scope="row"><?php esc_html_e( 'Auto-approve wholesale', 'wc-wholesale-offers' ); ?></th>
@@ -199,11 +212,13 @@ class WWO_Settings {
 					</tr>
 				</table>
 
-				<?php submit_button(); ?>
+				</div>
+
+				<?php submit_button( __( 'Save settings', 'wc-wholesale-offers' ), 'primary wwo-save-btn' ); ?>
 			</form>
 
-			<div class="wwo-settings-help card">
-				<h3><?php esc_html_e( 'Setup', 'wc-wholesale-offers' ); ?></h3>
+			<div class="wwo-panel wwo-settings-help">
+				<h2 class="title"><span class="dashicons dashicons-info-outline"></span> <?php esc_html_e( 'Setup', 'wc-wholesale-offers' ); ?></h2>
 				<p><?php esc_html_e( 'Add this shortcode to any page to display the styled login/registration form:', 'wc-wholesale-offers' ); ?></p>
 				<code>[wwo_login_register]</code>
 				<p><?php esc_html_e( 'Set a wholesale price per product on the product edit screen, under Product data → General (and per variation for variable products).', 'wc-wholesale-offers' ); ?></p>

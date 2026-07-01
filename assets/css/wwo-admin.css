@@ -4,41 +4,223 @@
  * @package WC_Wholesale_Offers
  */
 
+:root {
+	--wwo-admin-radius: 12px;
+	--wwo-admin-border: #e4e7ec;
+	--wwo-admin-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+	--wwo-admin-shadow-lg: 0 8px 24px rgba(16, 24, 40, 0.10);
+	--wwo-admin-muted: #667085;
+	--wwo-admin-ink: #1d2327;
+}
+
+.wwo-admin-wrap {
+	max-width: 1180px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Page header
+ * ------------------------------------------------------------------------- */
+.wwo-page-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin: 10px 0 22px;
+	padding: 20px 24px;
+	background: linear-gradient( 135deg, var(--wwo-primary, #332A28) 0%, #4a3d39 100% );
+	border-radius: var(--wwo-admin-radius);
+	color: #fff;
+	box-shadow: var(--wwo-admin-shadow-lg);
+}
+
+.wwo-page-head__title {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.wwo-page-head__title > .dashicons {
+	font-size: 30px;
+	width: 30px;
+	height: 30px;
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 12px;
+	background: rgba( 255, 255, 255, 0.14 );
+	border-radius: 10px;
+}
+
+.wwo-page-head h1 {
+	margin: 0;
+	padding: 0;
+	font-size: 22px;
+	line-height: 1.2;
+	color: #fff;
+}
+
+.wwo-page-head__sub {
+	margin: 4px 0 0;
+	font-size: 13px;
+	color: rgba( 255, 255, 255, 0.78 );
+}
+
+/* ---------------------------------------------------------------------------
+ * Stat cards
+ * ------------------------------------------------------------------------- */
 .wwo-admin-wrap .wwo-cards {
 	display: grid;
-	grid-template-columns: repeat( auto-fit, minmax( 200px, 1fr ) );
+	grid-template-columns: repeat( auto-fit, minmax( 220px, 1fr ) );
 	gap: 18px;
-	margin-top: 22px;
-	max-width: 900px;
+	margin-top: 0;
 }
 
 .wwo-card-stat {
 	display: flex;
-	flex-direction: column;
-	gap: 6px;
-	padding: 22px;
+	align-items: center;
+	gap: 16px;
+	padding: 20px;
 	background: #fff;
-	border: 1px solid #e2e4e7;
-	border-left: 4px solid var(--wwo-primary, #332A28);
-	border-radius: 10px;
+	border: 1px solid var(--wwo-admin-border);
+	border-radius: var(--wwo-admin-radius);
 	text-decoration: none;
-	color: #1d2327;
-	transition: box-shadow 0.2s ease, transform 0.05s ease;
+	color: var(--wwo-admin-ink);
+	box-shadow: var(--wwo-admin-shadow);
+	transition: box-shadow 0.2s ease, transform 0.12s ease, border-color 0.2s ease;
 }
 
-.wwo-card-stat:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
-.wwo-card-stat__num { font-size: 30px; font-weight: 700; color: var(--wwo-primary, #332A28); }
-.wwo-card-stat__label { font-size: 13px; color: #50575e; text-transform: uppercase; letter-spacing: 0.4px; }
+.wwo-card-stat:hover {
+	box-shadow: var(--wwo-admin-shadow-lg);
+	transform: translateY( -2px );
+	border-color: #d0d5dd;
+}
 
-/* Badges (shared look with front end) */
+.wwo-card-stat__icon {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 48px;
+	height: 48px;
+	border-radius: 12px;
+	background: #f2f4f7;
+	color: #475467;
+}
+
+.wwo-card-stat__icon .dashicons {
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
+}
+
+.wwo-card-stat__body {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.wwo-card-stat__num {
+	font-size: 28px;
+	font-weight: 700;
+	line-height: 1.1;
+	color: var(--wwo-admin-ink);
+}
+
+.wwo-card-stat__label {
+	font-size: 12px;
+	color: var(--wwo-admin-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	font-weight: 600;
+}
+
+/* Tone accents per card */
+.wwo-card-stat--pending   .wwo-card-stat__icon { background: #fff4d6; color: #b7791f; }
+.wwo-card-stat--countered .wwo-card-stat__icon { background: #dbeafe; color: #1d4ed8; }
+.wwo-card-stat--accepted  .wwo-card-stat__icon { background: #dcfce7; color: #15803d; }
+.wwo-card-stat--approvals .wwo-card-stat__icon { background: #ede9fe; color: #6d28d9; }
+
+/* ---------------------------------------------------------------------------
+ * Panels (shared container for tables + settings sections)
+ * ------------------------------------------------------------------------- */
+.wwo-panel {
+	background: #fff;
+	border: 1px solid var(--wwo-admin-border);
+	border-radius: var(--wwo-admin-radius);
+	box-shadow: var(--wwo-admin-shadow);
+	padding: 20px 24px;
+	margin: 22px 0;
+}
+
+.wwo-panel > h2.title,
+.wwo-panel > h2 {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 14px;
+	padding: 0 0 12px;
+	font-size: 15px;
+	border-bottom: 1px solid #f0f1f3;
+	color: var(--wwo-admin-ink);
+}
+
+.wwo-panel > h2 .dashicons {
+	color: var(--wwo-primary, #332A28);
+}
+
+.wwo-table-panel { padding: 16px 18px; }
+
+/* ---------------------------------------------------------------------------
+ * Quick links (dashboard)
+ * ------------------------------------------------------------------------- */
+.wwo-quick-links__grid {
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 240px, 1fr ) );
+	gap: 14px;
+}
+
+.wwo-quick-link {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 16px;
+	border: 1px solid var(--wwo-admin-border);
+	border-radius: 10px;
+	text-decoration: none;
+	color: var(--wwo-admin-ink);
+	transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.wwo-quick-link:hover {
+	background: #f9fafb;
+	border-color: #d0d5dd;
+}
+
+.wwo-quick-link .dashicons {
+	font-size: 22px;
+	width: 22px;
+	height: 22px;
+	color: var(--wwo-primary, #332A28);
+}
+
+.wwo-quick-link strong { display: block; font-size: 14px; }
+.wwo-quick-link span span,
+.wwo-quick-link > span:last-child { font-size: 12px; color: var(--wwo-admin-muted); }
+.wwo-quick-link em { font-style: normal; font-weight: 600; color: #475467; }
+
+/* ---------------------------------------------------------------------------
+ * Badges (shared look with front end)
+ * ------------------------------------------------------------------------- */
 .wwo-badge {
 	display: inline-block;
-	padding: 2px 10px;
+	padding: 3px 10px;
 	border-radius: 999px;
 	font-size: 11px;
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.3px;
+	line-height: 1.5;
 }
 .wwo-badge--pending   { background: #fff3cd; color: #7a5c00; }
 .wwo-badge--countered { background: #d9ecff; color: #0b4a8a; }
@@ -47,13 +229,126 @@
 .wwo-badge--rejected  { background: #fdecea; color: #8a1c1c; }
 .wwo-badge--expired   { background: #eceff1; color: #546e7a; }
 
+/* ---------------------------------------------------------------------------
+ * Tables
+ * ------------------------------------------------------------------------- */
+.wwo-table-panel .wp-list-table {
+	border: 1px solid var(--wwo-admin-border);
+	border-radius: 10px;
+	overflow: hidden;
+}
+.wwo-table-panel .wp-list-table thead th {
+	background: #f9fafb;
+	font-weight: 600;
+}
+.wwo-table-panel .wp-list-table tbody tr:hover {
+	background: #f9fafb;
+}
+.wwo-table-panel .wp-list-table tbody tr.wwo-row-selected {
+	background: #eff6ff;
+}
+
 /* Row actions */
-.wwo-row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.wwo-row-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .wwo-act--danger { color: #b32d2e !important; border-color: #b32d2e !important; }
 
-/* Settings help card */
-.wwo-settings-help { max-width: 600px; margin-top: 26px; padding: 18px 22px; }
-.wwo-settings-help code { display: inline-block; margin: 6px 0; padding: 4px 8px; background: #f0f0f1; border-radius: 4px; }
+/* Small icon danger button (delete) */
+.wwo-btn-icon-danger {
+	display: inline-flex !important;
+	align-items: center;
+	gap: 3px;
+	color: #b32d2e !important;
+	border-color: #e4b6b6 !important;
+}
+.wwo-btn-icon-danger:hover {
+	background: #fdecea !important;
+	border-color: #b32d2e !important;
+	color: #8a1c1c !important;
+}
+.wwo-btn-icon-danger .dashicons {
+	font-size: 15px;
+	width: 15px;
+	height: 15px;
+	line-height: 1.4;
+}
+
+/* ---------------------------------------------------------------------------
+ * Table toolbar + bulk bar
+ * ------------------------------------------------------------------------- */
+.wwo-table-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin: 12px 0;
+}
+
+.wwo-table-toolbar .search-box {
+	float: none;
+	margin: 0;
+}
+
+.wwo-bulk-bar {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.wwo-bulk-delete {
+	display: inline-flex !important;
+	align-items: center;
+	gap: 4px;
+}
+
+.wwo-bulk-delete:not(:disabled) {
+	color: #fff !important;
+	background: #b32d2e !important;
+	border-color: #b32d2e !important;
+}
+.wwo-bulk-delete:not(:disabled):hover {
+	background: #8a1c1c !important;
+}
+.wwo-bulk-delete .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 1.4;
+}
+
+.wwo-bulk-count {
+	font-size: 12px;
+	color: var(--wwo-admin-muted);
+	font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+ * Settings
+ * ------------------------------------------------------------------------- */
+.wwo-settings-form .form-table th { padding-left: 0; }
+.wwo-settings-help code {
+	display: inline-block;
+	margin: 6px 0;
+	padding: 5px 10px;
+	background: #f0f0f1;
+	border-radius: 6px;
+	font-size: 13px;
+}
+.wwo-settings-help { max-width: 720px; }
+
+.wwo-save-btn.button-primary {
+	padding: 4px 26px !important;
+	height: auto !important;
+	font-size: 14px !important;
+}
 
 /* Color preview swatch sits next to the wp-color-picker automatically. */
 .wwo-color-field { max-width: 120px; }
+
+/* ---------------------------------------------------------------------------
+ * Responsive
+ * ------------------------------------------------------------------------- */
+@media screen and ( max-width: 782px ) {
+	.wwo-page-head { flex-direction: column; align-items: flex-start; }
+	.wwo-table-toolbar { flex-direction: column; align-items: stretch; }
+}

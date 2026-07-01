@@ -413,6 +413,19 @@ class WWO_Offers {
 	}
 
 	/**
+	 * Format a price as plain text for messages shown outside HTML (e.g. JS
+	 * alerts). wc_price() emits the currency symbol as an HTML entity such as
+	 * "&#36;"; stripping tags alone leaves that entity visible, so we also decode
+	 * entities here to get a clean "$8.00".
+	 *
+	 * @param float $amount Amount.
+	 * @return string
+	 */
+	private static function price_text( $amount ) {
+		return html_entity_decode( wp_strip_all_tags( wc_price( (float) $amount ) ), ENT_QUOTES, 'UTF-8' );
+	}
+
+	/**
 	 * Validate a proposed price against the product's base price.
 	 *
 	 * @param float $price    Proposed price.
@@ -429,7 +442,7 @@ class WWO_Offers {
 			return new WP_Error(
 				'wwo_too_high',
 				/* translators: %s: formatted list price */
-				sprintf( __( 'The offer amount must be less than the list price (%s).', 'wc-wholesale-offers' ), wp_strip_all_tags( wc_price( $original ) ) )
+				sprintf( __( 'The offer amount must be less than the list price (%s).', 'wc-wholesale-offers' ), self::price_text( $original ) )
 			);
 		}
 		return true;
